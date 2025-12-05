@@ -1,51 +1,73 @@
-// controllers/daan_controller.dart
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/donation_model.dart';
-import '../screens/dashboard/donation/succes_donation_page.dart';
+import '../services/daanservice.dart';
 
 class DaanController extends GetxController {
-  var daanList = <DaanModel>[].obs;
+  var list = <DaanModel>[].obs;
   var isLoading = false.obs;
 
   @override
   void onInit() {
-    fetchDaanList();
     super.onInit();
+    fetch();
   }
 
-  void fetchDaanList() async {
-    isLoading(true);
-    await Future.delayed(const Duration(seconds: 1)); // Simulate API
-    daanList.assignAll(_dummyData());
-    isLoading(false);
+  Future<void> fetch() async {
+    isLoading.value = true;
+    try {
+      final items = await DaanService.getAll();
+      list.assignAll(items);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  void addDaan(DaanModel daan) {
-    daan.id = DateTime.now().millisecondsSinceEpoch.toString();
-    daanList.add(daan);
-    Get.back(); // close add page
-    Get.to(() => DaanSuccessPage(isEdit: false));
+  Future<void> addDaan(DaanModel daan) async {
+    isLoading.value = true;
+    try {
+      final created = await DaanService.add(daan);
+      list.insert(0, created);
+      Get.snackbar('Success', 'Daan added', snackPosition: SnackPosition.BOTTOM);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  void updateDaan(DaanModel updatedDaan) {
-    final index = daanList.indexWhere((e) => e.id == updatedDaan.id);
-    if (index != -1) daanList[index] = updatedDaan;
-    Get.back();
-    Get.to(() => DaanSuccessPage(isEdit: true));
+  Future<void> updateDaan(DaanModel daan) async {
+    isLoading.value = true;
+    try {
+      final updated = await DaanService.update(daan);
+      if (updated != null) {
+        final idx = list.indexWhere((d) => d.id == daan.id);
+        if (idx != -1) list[idx] = updated;
+        Get.snackbar('Success', 'Daan updated', snackPosition: SnackPosition.BOTTOM);
+      }
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  void deleteDaan(String id) {
-    daanList.removeWhere((e) => e.id == id);
+  Future<void> deleteDaan(String id) async {
+    final confirm = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text('Delete?'),
+        content: Text('This action cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Get.back(result: false), child: Text('Cancel')),
+          ElevatedButton(onPressed: () => Get.back(result: true), child: Text('Delete')),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      isLoading.value = true;
+      try {
+        await DaanService.remove(id);
+        list.removeWhere((d) => d.id == id);
+        Get.snackbar('Deleted', 'Daan removed', snackPosition: SnackPosition.BOTTOM);
+      } finally {
+        isLoading.value = false;
+      }
+    }
   }
-
-  List<DaanModel> _dummyData() => [
-    DaanModel(
-      id: "1",
-      imageUrl: "https://res.cloudinary.com/doubxarxb/image/upload/v1763541356/Other/cow_daan.jpg",
-      title: "Help ISKCON's Govardhan Eco Village in caring for cows",
-      description: "Your donation will help feed and care for cows.",
-      buttonLabel: "Donate Now",
-      redirectUrl: "https://iskcon.org/donate",
-    ),
-  ];
 }

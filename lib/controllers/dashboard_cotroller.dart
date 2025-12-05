@@ -52,16 +52,49 @@
 //   }
 // }
 
+//
+// import 'package:get/get.dart';
+// import '../apiservices/auth_services.dart';
+// import '../models/dashboard_model.dart';
+//
+//
+// class TempleHomeController extends GetxController {
+//   final loading = false.obs;
+//   final homeData = Rxn<TempleHomeModel>();
+//
+//   final ApiService api = ApiService();
+//
+//   @override
+//   void onInit() {
+//     super.onInit();
+//     fetchHomeData();
+//   }
+//
+//   Future<void> fetchHomeData() async {
+//     loading.value = true;
+//
+//     try {
+//       final data = await api.fetchHomeData();
+//       homeData.value = TempleHomeModel.fromJson(data);
+//     } catch (e) {
+//       Get.snackbar("Error", e.toString());
+//     } finally {
+//       loading.value = false;
+//     }
+//   }
+// }
+
+
+
 
 import 'package:get/get.dart';
-import '../apiservices/auth_services.dart';
+import '../apiservices/api_services.dart';
 import '../models/dashboard_model.dart';
-
+import '../services/dashboard_services.dart';
 
 class TempleHomeController extends GetxController {
   final loading = false.obs;
   final homeData = Rxn<TempleHomeModel>();
-
   final ApiService api = ApiService();
 
   @override
@@ -72,7 +105,6 @@ class TempleHomeController extends GetxController {
 
   Future<void> fetchHomeData() async {
     loading.value = true;
-
     try {
       final data = await api.fetchHomeData();
       homeData.value = TempleHomeModel.fromJson(data);
@@ -83,3 +115,4 @@ class TempleHomeController extends GetxController {
     }
   }
 }
+

@@ -1,48 +1,96 @@
-// // lib/services/api_service.dart
-// import 'package:dio/dio.dart';
+// // lib/services/darshan_service.dart
+//
 // import '../models/live_darshan_model.dart';
 //
-// class ApiService {
-//   static final Dio _dio = Dio();
+// class DarshanService {
+//   static List<DarshanModel> mockDarshans = [
+//     DarshanModel(
+//       id: "1",
+//       title: "ISKCON Krishna Janmashtami Celebration Live Darshan",
+//       templeName: "ISKCON Temple Vrindavan",
+//       liveLink: "https://youtube.com/watch?v=gryj264eu",
+//       webImage: "https://picsum.photos/600/400?random=1",
+//       mobileImage: "https://picsum.photos/400/600?random=1",
+//       createdAt: DateTime.now().subtract(Duration(days: 2)),
+//       isLive: true, description: '', subtitle: '', image: '',
+//     ),
+//     // Add more mock data...
+//   ];
 //
-//   static Future<List<LiveDarshanModel>> fetchLiveDarshans() async {
-//     // REAL API CALL (Future mein yaha se aayega)
-//     // final response = await _dio.get("https://api.iskconapp.com/darshan");
-//     // return (response.data as List).map((e) => LiveDarshanModel.fromJson(e)).toList();
+//   static Future<List<DarshanModel>> getAll() async {
+//     await Future.delayed(Duration(seconds: 1));
+//     return mockDarshans;
+//   }
 //
-//     // ABHI KE LIYE MOCK DATA
-//     await Future.delayed(const Duration(seconds: 1));
-//     return [
-//       LiveDarshanModel(
-//         id: "1",
-//         title: "ISKCON Krishna Janmashtami Celebration Live Darshan from Vrindavan",
-//         image: "https://images.unsplash.com/photo-1599481241901-8d9e0e1e0e2f?w=800&q=80",
-//         youtubeLink: "https://youtube.com/live/janmashtami2025",
-//         isLive: true,
-//       ),
-//       LiveDarshanModel(
-//         id: "2",
-//         title: "ISKCON Krishna Janmashtami Celebration Live Darshan from Vrindavan",
-//         image: "https://images.unsplash.com/photo-1599481241901-8d9e0e1e0e2f?w=800&q=80",
-//         youtubeLink: "https://youtube.com/live/janmashtami2025",
-//         isLive: true,
-//       ),
-//       LiveDarshanModel(
-//         id: "3",
-//         title: "ISKCON Krishna Janmashtami Celebration Live Darshan from Vrindavan",
-//         image: "https://images.unsplash.com/photo-1599481241901-8d9e0e1e0e2f?w=800&q=80",
-//         youtubeLink: "https://youtube.com/live/janmashtami2025",
-//         isLive: false,
-//         endedOn: "4th November, 2025",
-//       ),
-//       LiveDarshanModel(
-//         id: "4",
-//         title: "ISKCON Krishna Janmashtami Celebration Live Darshan from Vrindavan",
-//         image: "https://images.unsplash.com/photo-1599481241901-8d9e0e1e0e2f?w=800&q=80",
-//         youtubeLink: "https://youtube.com/live/janmashtami2025",
-//         isLive: false,
-//         endedOn: "4th November, 2025",
-//       ),
-//     ];
+//   static Future<void> add(DarshanModel darshan) async {
+//     await Future.delayed(Duration(seconds: 2));
+//     mockDarshans.insert(0, darshan..id = DateTime.now().toString());
+//   }
+//
+//   static Future<void> update(DarshanModel darshan) async {
+//     await Future.delayed(Duration(seconds: 2));
+//     final index = mockDarshans.indexWhere((e) => e.id == darshan.id);
+//     if (index != -1) mockDarshans[index] = darshan;
+//   }
+//
+//   static Future<void> delete(String id) async {
+//     await Future.delayed(Duration(seconds: 1));
+//     mockDarshans.removeWhere((e) => e.id == id);
 //   }
 // }
+
+
+
+// lib/services/darshan_service.dart
+
+import '../models/live_darshan_model.dart';
+
+class DarshanService {
+  static List<DarshanModel> mockDarshans = [
+    DarshanModel(
+      id: "1",
+      title: "ISKCON Krishna Janmashtami Celebration Live Darshan",
+      templeName: "ISKCON Temple Vrindavan",
+      liveLink: "https://youtube.com/watch?v=gryj264eu",
+      webImage: "https://picsum.photos/600/400?random=1",
+      mobileImage: "https://picsum.photos/400/600?random=1",
+      createdAt: DateTime.now().subtract(const Duration(days: 2)),
+      isLive: true,
+      description: "Live darshan of ISKCON Janmashtami event",
+      subtitle: "Special Celebration",
+      image: "https://picsum.photos/500/300?random=55",
+    ),
+  ];
+
+  /// Get all darshans
+  static Future<List<DarshanModel>> getAll() async {
+    await Future.delayed(const Duration(milliseconds: 800));
+    return mockDarshans;
+  }
+
+  /// Add new darshan
+  static Future<void> add(DarshanModel darshan) async {
+    await Future.delayed(const Duration(milliseconds: 600));
+
+    final newId = DateTime.now().millisecondsSinceEpoch.toString();
+    final item = darshan.copyWith(id: newId);
+
+    mockDarshans.insert(0, item);
+  }
+
+  /// Update existing darshan
+  static Future<void> update(DarshanModel darshan) async {
+    await Future.delayed(const Duration(milliseconds: 600));
+
+    final index = mockDarshans.indexWhere((e) => e.id == darshan.id);
+    if (index != -1) {
+      mockDarshans[index] = darshan;
+    }
+  }
+
+  /// Delete darshan
+  static Future<void> delete(String id) async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    mockDarshans.removeWhere((e) => e.id == id);
+  }
+}

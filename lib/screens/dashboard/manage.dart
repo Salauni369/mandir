@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:motion_tab_bar_v2/motion-tab-controller.dart';
-
+import '../../controllers/galary_controller.dart';
 import '../../controllers/manage_controller.dart';
 import 'overview.dart';
 import 'location.dart';
@@ -70,12 +69,11 @@ import 'galary.dart';
 // }
 
 class ManageMainPage extends StatelessWidget {
-  final MotionTabBarController controller;
-
- const ManageMainPage({super.key, required this.controller});
+ const ManageMainPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    Get.put(GalleryController());
     final controller = Get.put(ManageController());
 
     return Scaffold(
@@ -94,6 +92,7 @@ class ManageMainPage extends StatelessWidget {
           child: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
+
             automaticallyImplyLeading: false,
             title: const Text("Manage", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
             actions: [
@@ -132,7 +131,7 @@ class ManageMainPage extends StatelessWidget {
       // BODY — TABS SMOOTHLY SWITCH HONGE
       body: Obx(() => IndexedStack(
         index: controller.activeTab.value,
-        children: const [
+        children:  [
           OverviewTab(),
           LocationTab(),
           TimingTab(),
@@ -141,8 +140,6 @@ class ManageMainPage extends StatelessWidget {
         ],
       )),
 
-      // YE HI  this is to much predicticable to ya sy ha hb xhja zhyxa PREMIUM BOTTOM NAV AB SAB JAGAH CHALEGA
-      //bottomNavigationBar: const CustomBottomNav(currentIndex: 1),
     );
   }
 
@@ -157,7 +154,7 @@ class ManageMainPage extends StatelessWidget {
           title,
           style: TextStyle(
             color: isSelected ? Colors.white : Colors.white70,
-            fontSize: 13,
+            fontSize: 16,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
           ),
         ),

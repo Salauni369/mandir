@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:untitled/screens/splashscreen.dart';
 import 'controllers/dashboard_cotroller.dart';
 import 'controllers/notification_controller.dart';
 import 'myRoutes/mypagesname.dart';
@@ -44,8 +45,9 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         fontFamily: "Poppins"
       ),
-      initialRoute: MyPagesName.splash,
-      getPages: MyRoute.list,
+      // initialRoute: MyPagesName.splash,
+      // getPages: MyRoute.list,
+      home: SplashScreen(),
     );
   }
 }

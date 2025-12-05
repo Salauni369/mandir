@@ -1,6 +1,15 @@
+// import 'package:flutter/material.dart';
+// import 'package:get/get.dart';
+// import 'package:untitled/myRoutes/mypagesname.dart';
+// import 'package:untitled/screens/dashboard/dashboard_page.dart';
+// import 'package:untitled/widgets/custom_bottom_nav.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:untitled/myRoutes/mypagesname.dart';
+import 'package:untitled/screens/dashboard/dashboard_page.dart';
+import 'package:untitled/widgets/custom_bottom_nav.dart';
+
+import '../onboarding2.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -8,8 +17,11 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Future.delayed(const Duration(seconds: 3), () {
-      Get.offNamed(MyPagesName.onboardingscreen);
-    });
+       Get.offAll(()=> OnboardingScreen());
+    //  // Get.offAll(() => LoginScreen());
+    //
+       // Get.offAll(()=> MyHomePage());
+     });
 
     return Scaffold(
       body: Stack(
@@ -26,23 +38,25 @@ class SplashScreen extends StatelessWidget {
 
           Center(
             child: Padding(
-              padding: const EdgeInsets.all(40.0),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
                     "assets/images/Zemboree_Logo.png",
-
+                    width: MediaQuery.of(context).size.width-50,
                   ),
 
                   const SizedBox(height: 5), // ← YOUR 5px GAP
 
-                  const Text(
-                    "Sacred Space Management",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w300,
+                  Center(
+                    child: const Text(
+                      "Sacred Space Management",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w300,
+                      ),
                     ),
                   ),
                 ],

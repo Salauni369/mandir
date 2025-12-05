@@ -14,59 +14,51 @@ class TimingTab extends StatelessWidget {
       padding: const EdgeInsets.all(1),
       children: [
         _sectionHeader("Darshan Timings"),
-        const SizedBox(height: 18),
-        Obx(
-          () => Column(
-            children: controller.darshanTimings
-                .map((t) => _darshanCard(controller, t))
-                .toList(),
-          ),
-        ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
+
+        Obx(() => Column(
+          children: controller.darshanTimings
+              .map((t) => _timingCard(controller, t, false))
+              .toList(),
+        )),
+
+        const SizedBox(height: 10),
+
         Center(
-          child: _addMoreButton(
-            "Add More Darshan Timings",
-            onPressed: () {
-              controller.addDarshanTiming(
-                TimingModel(
-                  title: "New Darshan",
-                  startTime: "00:00",
-                  endTime: "00:00",
-                ),
-              );
-            },
-          ),
+          child: _addBtn("Add More Darshan Timings", () {
+            controller.addDarshanTiming(
+              TimingModel(title: "", startTime: "", endTime: ""),
+            );
+          }),
         ),
+
         const SizedBox(height: 30),
+
         _sectionHeader("Aarti Timings"),
         const SizedBox(height: 16),
-        Obx(
-          () => Column(
-            children: controller.aartiTimings
-                .map((t) => _darshanCard(controller, t, isAarti: true))
-                .toList(),
-          ),
-        ),
-        const SizedBox(height: 16),
+
+        Obx(() => Column(
+          children: controller.aartiTimings
+              .map((t) => _timingCard(controller, t, true))
+              .toList(),
+        )),
+
+        const SizedBox(height: 10),
+
         Center(
-          child: _addMoreButton(
-            "Add More Aarti Timings",
-            onPressed: () {
-              controller.addAartiTiming(
-                TimingModel(
-                  title: "New Aarti",
-                  startTime: "00:00",
-                  endTime: "00:00",
-                ),
-              );
-            },
-          ),
+          child: _addBtn("Add More Aarti Timings", () {
+            controller.addAartiTiming(
+              TimingModel(title: "", startTime: "", endTime: ""),
+            );
+          }),
         ),
-        const SizedBox(height: 50),
+
+        const SizedBox(height: 40),
       ],
     );
   }
 
+  // SECTION HEADER UI
   Widget _sectionHeader(String title) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -77,20 +69,20 @@ class TimingTab extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-          ),
-          const Icon(Icons.keyboard_arrow_down, color: Colors.black54),
+          Text(title,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          const Icon(Icons.keyboard_arrow_down),
         ],
       ),
     );
   }
 
-  Widget _darshanCard(ManageController controller, t, {bool isAarti = false}) {
-    final titleCtrl = TextEditingController()..text = t.title;
-    final startCtrl = TextEditingController()..text = t.startTime;
-    final endCtrl = TextEditingController()..text = t.endTime;
+  // MAIN TIMING CARD
+  Widget _timingCard(
+      ManageController controller, TimingModel t, bool isAarti) {
+    final titleCtrl = TextEditingController(text: t.title);
+    final startCtrl = TextEditingController(text: t.startTime);
+    final endCtrl = TextEditingController(text: t.endTime);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -102,13 +94,14 @@ class TimingTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Title *",
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
+          const Text("Title *",
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+
           TextField(
             controller: titleCtrl,
+            style: const TextStyle(fontSize: 12),
+            onChanged: (v) => t.title = v,
             decoration: InputDecoration(
               filled: true,
               fillColor: Colors.white,
@@ -116,41 +109,36 @@ class TimingTab extends StatelessWidget {
                 borderRadius: BorderRadius.circular(2),
                 borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 14,
-              ),
+              contentPadding:
+              const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
             ),
           ),
+
           const SizedBox(height: 16),
-          const Text(
-            "Start & End Time *",
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
+
+          const Text("Start & End Time *",
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+
           Row(
             children: [
-              Expanded(child: _timePickerField(startCtrl)),
+              Expanded(child: _timeField(startCtrl, (v) => t.startTime = v)),
               const SizedBox(width: 12),
-              Expanded(child: _timePickerField(endCtrl)),
+              Expanded(child: _timeField(endCtrl, (v) => t.endTime = v)),
             ],
           ),
-          const SizedBox(height: 12),
+
+          const SizedBox(height: 10),
+
           Align(
             alignment: Alignment.centerRight,
             child: IconButton(
               onPressed: () {
-                if (isAarti) {
-                  controller.aartiTimings.remove(t);
-                } else {
-                  controller.darshanTimings.remove(t);
-                }
+                isAarti
+                    ? controller.aartiTimings.remove(t)
+                    : controller.darshanTimings.remove(t);
               },
-              icon: const Icon(
-                Icons.delete_forever,
-                color: Colors.red,
-                size: 25,
-              ),
+              icon: const Icon(Icons.delete_forever, color: Colors.red),
             ),
           ),
         ],
@@ -158,41 +146,54 @@ class TimingTab extends StatelessWidget {
     );
   }
 
-  Widget _timePickerField(TextEditingController controller) {
+  // TIME PICKER FIELD
+  Widget _timeField(
+      TextEditingController ctrl, Function(String) onTimePicked) {
     return TextField(
       readOnly: true,
-      controller: controller,
+      controller: ctrl,
+      style: const TextStyle(fontSize: 12),
+      onTap: () async {
+        TimeOfDay? picked = await showTimePicker(
+          context: Get.context!,
+          initialTime: TimeOfDay.now(),
+        );
+
+        if (picked != null) {
+          String formatted = picked.format(Get.context!);
+          ctrl.text = formatted;
+          onTimePicked(formatted);
+        }
+      },
       decoration: InputDecoration(
         filled: true,
         fillColor: Colors.white,
-        hintStyle: const TextStyle(color: Colors.black87),
-        suffixIcon: const Icon(Icons.access_time, color: Colors.grey),
+        suffixIcon: const Icon(Icons.access_time, size: 20),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(2),
           borderSide: BorderSide.none,
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
+        contentPadding:
+        const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       ),
     );
   }
 
-  Widget _addMoreButton(String text, {required VoidCallback onPressed}) {
-    return TextButton.icon(
-      onPressed: onPressed,
-      icon: const Icon(Icons.add_circle_outline, color: Color(0xFFFF7722)),
-      label: Text(
-        text,
-        style: const TextStyle(color: Color(0xFFFF7722), fontSize: 13),
-      ),
-      style: TextButton.styleFrom(
-        backgroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-          side: const BorderSide(color: Color(0xFFFF7722), width: 1.5),
+  // ADD BUTTON
+  Widget _addBtn(String txt, VoidCallback action) {
+    return IntrinsicWidth(
+      child: TextButton.icon(
+        onPressed: action,
+        icon: const Icon(Icons.add_circle_outline, color: Color(0xFFFF7722)),
+        label: Text(txt,
+            style: const TextStyle(color: Color(0xFFFF7722), fontSize: 12)),
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+            side: const BorderSide(color: Color(0xFFFF7722)),
+          ),
         ),
       ),
     );
