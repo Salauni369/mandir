@@ -1,4 +1,4 @@
-name: untitled
+name: zamboree_devotion
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -35,6 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   get: ^4.7.2
+
   carousel_slider: ^5.1.1
   image_picker: ^1.2.1
   http: ^1.6.0
@@ -48,9 +49,14 @@ dependencies:
   google_maps_flutter: ^2.14.0
   google_fonts: ^6.3.2
   url_launcher: ^6.3.2
-  get_storage:
+  get_storage: ^2.1.1
   cached_network_image: ^3.4.1
   flutter_google_places_hoc081098: ^2.0.0
+  rename_app: ^1.6.5
+  image_cropper: ^11.0.0
+  youtube_player_flutter: ^9.1.3
+  path_provider: ^2.1.5
+  image: ^4.6.0
 
 
 

@@ -1,16 +1,22 @@
+//
+//
+// // lib/widgets/imageuploadwidget.dart
 // import 'dart:io';
 // import 'package:flutter/material.dart';
 // import 'package:image_picker/image_picker.dart';
 //
 // class ImageUploadWidget extends StatelessWidget {
 //   final String? initialImage;
-//   final String title;
+//  // final String title;
 //   final Function(String path) onPicked;
+//   final bool showInfo;
 //
-//   ImageUploadWidget({
-//     required this.title,
+//   const ImageUploadWidget({
+//     super.key,
+//    // required this.title,
 //     this.initialImage,
 //     required this.onPicked,
+//     this.showInfo = true,
 //   });
 //
 //   @override
@@ -18,146 +24,173 @@
 //     return Column(
 //       crossAxisAlignment: CrossAxisAlignment.start,
 //       children: [
-//         Text(title, style: TextStyle(fontWeight: FontWeight.w700)),
-//         SizedBox(height: 8),
 //
-//         GestureDetector(
-//           onTap: () async {
-//             final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-//             if (picked != null) {
-//               onPicked(picked.path);
-//             }
-//           },
-//           child: Container(
-//             height: 140,
-//             width: double.infinity,
-//             decoration: BoxDecoration(
-//               borderRadius: BorderRadius.circular(10),
-//               border: Border.all(color: Colors.grey.shade300),
+//         /// Title: "Web Image" / "Mobile Image"
+//         // Text(
+//         //  // title,
+//         //   style: const TextStyle(
+//         //     fontSize: 14,
+//         //     fontWeight: FontWeight.w600,
+//         //     color: Colors.black87,
+//         //   ),
+//         // ),
+//
+//         const SizedBox(height: 10),
+//
+//
+//         Row(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//
+//             ClipRRect(
+//               borderRadius: BorderRadius.circular(12),
+//               child: initialImage == null
+//                   ? Container(
+//                 width: 80,
+//                 height: 80,
+//                 color: Colors.grey.shade300,
+//                 child: const Icon(Icons.image, size: 32),
+//               )
+//                   : initialImage!.startsWith("http")
+//                   ? Image.network(
+//                 initialImage!,
+//                 width: 80,
+//                 height: 80,
+//                 fit: BoxFit.cover,
+//               )
+//                   : Image.file(
+//                 File(initialImage!),
+//                 width: 80,
+//                 height: 80,
+//                 fit: BoxFit.cover,
+//               ),
 //             ),
-//             child: initialImage == null
-//                 ? Center(child: Text("Upload Image"))
-//                 : initialImage!.startsWith("http")
-//                 ? Image.network(initialImage!, fit: BoxFit.cover)
-//                 : Image.file(File(initialImage!), fit: BoxFit.cover),
-//           ),
+//
+//             const SizedBox(width: 14),
+//
+//
+//             Expanded(
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//
+//                   Text(
+//                     initialImage != null
+//                         ? initialImage!.split("/").last
+//                         : "No file selected",
+//                     maxLines: 1,
+//                     overflow: TextOverflow.ellipsis,
+//                     style: const TextStyle(
+//                       fontSize: 13,
+//                       color: Colors.black87,
+//                     ),
+//                   ),
+//
+//                   const SizedBox(height: 6),
+//
+//                   /// CHANGE LINK (blue)
+//                   InkWell(
+//                     onTap: () async {
+//                       final picked = await ImagePicker().pickImage(
+//                         source: ImageSource.gallery,
+//                       );
+//                       if (picked != null) onPicked(picked.path);
+//                     },
+//                     child: Text(
+//                       "Change ",
+//                       style: const TextStyle(
+//                         fontSize: 13,
+//                         color: Color(0xFF1E88E5), // perfect figma blue
+//                         fontWeight: FontWeight.w500,
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ],
 //         ),
 //       ],
 //     );
 //   }
 // }
-
-
-// import 'dart:io';
-// import 'package:flutter/material.dart';
-// import 'package:image_picker/image_picker.dart';
 //
-// class ImageUploadWidget extends StatelessWidget {
-//   final String? initialImage;
-//   final String title;
-//   final Function(String path) onPicked;
 //
-//   ImageUploadWidget({
-//     required this.title,
-//     this.initialImage,
-//     required this.onPicked,
-//   });
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         // Title
-//         Text(title, style: TextStyle(fontWeight: FontWeight.w700)),
-//         SizedBox(height: 4),
-//
-//         // 🔥 Supported formats text just under title
-//         Text(
-//           "Supported formats: JPG, PNG",
-//           style: TextStyle(
-//             fontSize: 12,
-//             color: Colors.grey,
-//             fontWeight: FontWeight.w500,
-//           ),
-//         ),
-//         SizedBox(height: 8),
-//
-//         // Image upload box
-//         GestureDetector(
-//           onTap: () async {
-//             final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-//             if (picked != null) {
-//               onPicked(picked.path);
-//             }
-//           },
-//           child: Container(
-//             height: 140,
-//             width: double.infinity,
-//             decoration: BoxDecoration(
-//               borderRadius: BorderRadius.circular(10),
-//               border: Border.all(color: Colors.grey.shade300),
-//             ),
-//             child: initialImage == null
-//                 ? Center(child: Text("Upload Image"))
-//                 : initialImage!.startsWith("http")
-//                 ? Image.network(initialImage!, fit: BoxFit.cover)
-//                 : Image.file(File(initialImage!), fit: BoxFit.cover),
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
 
 // lib/widgets/imageuploadwidget.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 class ImageUploadWidget extends StatelessWidget {
   final String? initialImage;
- // final String title;
   final Function(String path) onPicked;
+  final Widget? initialImageWidget;
   final bool showInfo;
 
   const ImageUploadWidget({
     super.key,
-   // required this.title,
     this.initialImage,
     required this.onPicked,
+    this.initialImageWidget,
     this.showInfo = true,
   });
+
+  Future<String?> _pickAndCrop(BuildContext context) async {
+    final picker = ImagePicker();
+
+    // 1️⃣ Pick image
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked == null) return null;
+
+    // 2️⃣ Crop image
+    CroppedFile? croppedFile = await ImageCropper().cropImage(
+      sourcePath: picked.path,
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Crop Image',
+          toolbarColor: Colors.deepOrange,
+          toolbarWidgetColor: Colors.white,
+          aspectRatioPresets: [
+            CropAspectRatioPreset.original,
+            CropAspectRatioPreset.square,
+            CropAspectRatioPresetCustom(),
+          ],
+        ),
+        IOSUiSettings(
+          title: 'Crop Image',
+          aspectRatioPresets: [
+            CropAspectRatioPreset.original,
+            CropAspectRatioPreset.square,
+            CropAspectRatioPresetCustom(),
+          ],
+        ),
+        WebUiSettings(context: context),
+      ],
+    );
+
+    if (croppedFile == null) return null;
+    return croppedFile.path;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
-        /// Title: "Web Image" / "Mobile Image"
-        // Text(
-        //  // title,
-        //   style: const TextStyle(
-        //     fontSize: 14,
-        //     fontWeight: FontWeight.w600,
-        //     color: Colors.black87,
-        //   ),
-        // ),
-
         const SizedBox(height: 10),
 
-        /// ROW = IMAGE + (FILENAME + CHANGE BUTTON)
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// IMAGE (80x80)
+            // LEFT: IMAGE PREVIEW
             ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
               child: initialImage == null
                   ? Container(
-                width: 80,
-                height: 80,
+                width: 108,
+                height: 108,
                 color: Colors.grey.shade300,
                 child: const Icon(Icons.image, size: 32),
               )
@@ -178,12 +211,11 @@ class ImageUploadWidget extends StatelessWidget {
 
             const SizedBox(width: 14),
 
-            /// FILENAME + CHANGE LINK
+            // RIGHT SIDE INFO + CHANGE BUTTON
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /// FILE NAME (same as figma)
                   Text(
                     initialImage != null
                         ? initialImage!.split("/").last
@@ -198,19 +230,16 @@ class ImageUploadWidget extends StatelessWidget {
 
                   const SizedBox(height: 6),
 
-                  /// CHANGE LINK (blue)
                   InkWell(
                     onTap: () async {
-                      final picked = await ImagePicker().pickImage(
-                        source: ImageSource.gallery,
-                      );
-                      if (picked != null) onPicked(picked.path);
+                      final path = await _pickAndCrop(context);
+                      if (path != null) onPicked(path);
                     },
-                    child: Text(
-                      "Change ",
-                      style: const TextStyle(
+                    child: const Text(
+                      "Change",
+                      style: TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF1E88E5), // perfect figma blue
+                        color: Color(0xFF1E88E5),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -225,4 +254,11 @@ class ImageUploadWidget extends StatelessWidget {
   }
 }
 
+/// CUSTOM ASPECT RATIO 2x3
+class CropAspectRatioPresetCustom implements CropAspectRatioPresetData {
+  @override
+  (int, int)? get data => (2, 3); // 2x3
 
+  @override
+  String get name => '2x3 (custom)';
+}

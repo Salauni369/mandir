@@ -1,53 +1,42 @@
+
 import 'dart:convert';
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
-class AuthService {
-  final String baseUrl = "https://api.gamsgroup.in/spiritual/auth";
+class ApiService {
+  final _box = GetStorage();
+  final String baseUrl = "https://api.gamsgroup.in/spiritual";
 
-  Future<Map<String, dynamic>> sendOtp(String phone) async {
-
-    try {
-      final url = Uri.parse("$baseUrl/send-otp");
-
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"phone": phone}),
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        return {
-          "success": false,
-          "message": "Server error: ${response.statusCode}",
-        };
-      }
-    } catch (e) {
-      return {"success": false, "message": e.toString()};
-    }
+  Map<String, String> _headers() {
+    final token = _box.read("access_token");
+    return {
+      "Content-Type": "application/json",
+      if (token != null) "Authorization": "Bearer $token",
+    };
   }
 
-  Future<Map<String, dynamic>> verifyOtp(String phone, String otp) async {
-    try {
-      final url = Uri.parse("$baseUrl/verify-otp");
+  Future<Map<String, dynamic>> fetchHomeData() async {
+    final res = await http.get(Uri.parse("$baseUrl/"), headers: _headers());
+    return _handleResponse(res);
+  }
 
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"phone": phone, "otp": otp}),
-      );
+  Future<Map<String, dynamic>> addDarshan(Map<String, dynamic> data) async {
+    final res = await http.post(
+      Uri.parse("$baseUrl/live"),
+      headers: _headers(),
+      body: jsonEncode(data),
+    );
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        return {
-          "success": false,
-          "message": "Server error: ${response.statusCode}",
-        };
-      }
-    } catch (e) {
-      return {"success": false, "message": e.toString()};
+    return _handleResponse(res);
+  }
+
+  Map<String, dynamic> _handleResponse(http.Response res) {
+    if (res.statusCode == 200 || res.statusCode == 201) {
+      return jsonDecode(res.body);
+    } else if (res.statusCode == 401) {
+      _box.remove("access_token");
+      throw "Session expired";
     }
+    throw "Error: ${res.statusCode}";
   }
 }

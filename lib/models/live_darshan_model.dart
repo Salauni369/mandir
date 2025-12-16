@@ -1,170 +1,63 @@
-//
-// class DarshanModel {
-//    String id;
-//   final String subtitle;
-//   final String description;
-//   final String image;
-//   final String title;
-//   final String templeName;
-//   final String liveLink;
-//   final String? webImage;
-//   final String? mobileImage;
-//   final DateTime createdAt;
-//   final bool isLive;
-//
-//   DarshanModel({
-//     required this.description,
-//     required this.subtitle,
-//     required this.image,
-//     required this.id,
-//     required this.title,
-//     required this.templeName,
-//     required this.liveLink,
-//     this.webImage,
-//     this.mobileImage,
-//     required this.createdAt,
-//     this.isLive = false,
-//   });
-//
-//   factory DarshanModel.fromJson(Map<String, dynamic> json) {
-//     return DarshanModel(
-//       id: json['id'],
-//       description:json['description'],
-//       subtitle: json['subtitle'],
-//       image: json['image'],
-//       title: json['title'],
-//       templeName: json['templeName'],
-//       liveLink: json['liveLink'],
-//       webImage: json['webImage'],
-//       mobileImage: json['mobileImage'],
-//       createdAt: DateTime.parse(json['createdAt']),
-//       isLive: json['isLive'] ?? false,
-//     );
-//   }
-//
-//   Map<String, dynamic> toJson() => {
-//     'id': id,
-//     'title': title,
-//     'templeName': templeName,
-//     'liveLink': liveLink,
-//     'webImage': webImage,
-//     'mobileImage': mobileImage,
-//     'createdAt': createdAt.toIso8601String(),
-//     'isLive': isLive,
-//   };
-// }
-
-
-
 class DarshanModel {
-  String id;
+  final String id;
   final String title;
-  final String templeName;
   final String liveLink;
 
   final String subtitle;
   final String description;
-  final String image; // main image (can be "")
+  final String image;
 
-  final String? webImage;     // optional
-  final String? mobileImage;  // optional
-
+  final String? mobile_image;
   final DateTime createdAt;
-  final bool isLive;
+
+  // 🔥 SINGLE SOURCE OF TRUTH
+  final String status; // "ACTIVE" | "INACTIVE"
 
   DarshanModel({
     required this.id,
     required this.title,
-    required this.templeName,
     required this.liveLink,
-
     required this.subtitle,
     required this.description,
     required this.image,
-
-    this.webImage,
-    this.mobileImage,
-
+    this.mobile_image,
     required this.createdAt,
-    this.isLive = false,
+    required this.status,
   });
 
-  // -------------------------
-  // copyWith() for Edit Page
-  // -------------------------
+  // ✅ DERIVED VALUE (NO FIELD)
+  bool get isLive => status == "ACTIVE";
+
   DarshanModel copyWith({
-    String? id,
     String? title,
-    String? templeName,
     String? liveLink,
-
-    String? subtitle,
-    String? description,
-    String? image,
-
-    String? webImage,
-    String? mobileImage,
-
-    DateTime? createdAt,
-    bool? isLive,
+    String? mobile_image,
+    String? status,
   }) {
     return DarshanModel(
-      id: id ?? this.id,
+      id: id,
       title: title ?? this.title,
-      templeName: templeName ?? this.templeName,
       liveLink: liveLink ?? this.liveLink,
-
-      subtitle: subtitle ?? this.subtitle,
-      description: description ?? this.description,
-      image: image ?? this.image,
-
-      webImage: webImage ?? this.webImage,
-      mobileImage: mobileImage ?? this.mobileImage,
-
-      createdAt: createdAt ?? this.createdAt,
-      isLive: isLive ?? this.isLive,
+      subtitle: subtitle,
+      description: description,
+      image: image,
+      mobile_image: mobile_image ?? this.mobile_image,
+      createdAt: createdAt,
+      status: status ?? this.status,
     );
   }
 
-  // -------------------------
-  // JSON from Backend
-  // -------------------------
   factory DarshanModel.fromJson(Map<String, dynamic> json) {
     return DarshanModel(
-      id: json['id'],
-      title: json['title'],
-      templeName: json['templeName'],
-      liveLink: json['liveLink'],
-
-      subtitle: json['subtitle'] ?? "",
-      description: json['description'] ?? "",
+      id: json['_id'],
+      title: json['title'] ?? "",
+      liveLink: json['embeddedLink'] ?? "",
+      subtitle: "",
+      description: "",
       image: json['image'] ?? "",
-
-      webImage: json['webImage'],
-      mobileImage: json['mobileImage'],
-
+      mobile_image: json['mobile_image'],
       createdAt: DateTime.parse(json['createdAt']),
-      isLive: json['isLive'] ?? false,
+      status: json['status'] ?? "INACTIVE",
     );
   }
-
-  // -------------------------
-  // JSON to Backend
-  // -------------------------
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'title': title,
-    'templeName': templeName,
-    'liveLink': liveLink,
-
-    'subtitle': subtitle,
-    'description': description,
-    'image': image,
-
-    'webImage': webImage,
-    'mobileImage': mobileImage,
-
-    'createdAt': createdAt.toIso8601String(),
-    'isLive': isLive,
-  };
 }

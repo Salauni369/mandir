@@ -31,9 +31,9 @@ class DaanCard extends StatelessWidget {
         children: [
           // IMAGE
           ClipRRect(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(5),
             child: Image.network(
-              daan.imageUrl,
+              daan.image,
               width: 80,
               height: 80,
               fit: BoxFit.cover,
@@ -53,14 +53,14 @@ class DaanCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  daan.title,
+                  daan.description,
                   style: TextStyle(fontWeight: FontWeight.normal,fontSize: 13),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 12),
                 SizedBox(
-                  width: double.infinity,
+                  width: 110,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.hinduBase,
@@ -68,7 +68,7 @@ class DaanCard extends StatelessWidget {
                       padding: EdgeInsets.symmetric(vertical: 12),
                     ),
                     onPressed: () async {
-                      final url = daan.buttonUrl;
+                      final url = daan.buttonLink;
                       if (await canLaunchUrl(Uri.parse(url))) {
                         await launchUrl(Uri.parse(url));
                       } else {
@@ -76,11 +76,11 @@ class DaanCard extends StatelessWidget {
                       }
                     },
                     child: Text(
-                      daan.buttonLabel,
+                      daan.buttonText,
                       style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ),
-                ),
+               ),
               ],
             ),
           ),

@@ -6,8 +6,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:untitled/screens/dashboard/dashboard_page.dart';
-import 'package:untitled/widgets/custom_bottom_nav.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:zamboree_devotion/widgets/custom_bottom_nav.dart';
 
 import '../onboarding2.dart';
 
@@ -16,11 +16,15 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    GetStorage _storage = GetStorage();
     Future.delayed(const Duration(seconds: 3), () {
-       Get.offAll(()=> OnboardingScreen());
-    //  // Get.offAll(() => LoginScreen());
-    //
-       // Get.offAll(()=> MyHomePage());
+      final token = _storage.read("access_token");
+      print("token ===>> $token");
+      if(token != null && token.toString().isNotEmpty){
+        Get.offAll(()=> MyHomePage());
+      }else {
+        Get.offAll(()=> OnboardingScreen());
+      }
      });
 
     return Scaffold(

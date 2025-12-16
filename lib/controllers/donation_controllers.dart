@@ -1,73 +1,118 @@
-import 'package:flutter/material.dart';
+
 import 'package:get/get.dart';
+
 import '../models/donation_model.dart';
 import '../services/daanservice.dart';
+import 'dashboard_cotroller.dart';
 
 class DaanController extends GetxController {
-  var list = <DaanModel>[].obs;
-  var isLoading = false.obs;
+  final list = <DaanModel>[].obs;
+  final isLoading = false.obs;
 
   @override
   void onInit() {
     super.onInit();
-    fetch();
+    fetchDonations();
   }
 
-  Future<void> fetch() async {
-    isLoading.value = true;
+  // ----------------------------------
+  // LOAD DONATIONS FROM DASHBOARD DATA
+  // ----------------------------------
+  //
+  Future<void> fetchDonations() async {
     try {
-      final items = await DaanService.getAll();
-      list.assignAll(items);
+      isLoading(true);
+      final data = await DaanService.getAll();
+      list.assignAll(data);
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
     } finally {
-      isLoading.value = false;
+      isLoading(false);
     }
   }
 
-  Future<void> addDaan(DaanModel daan) async {
+  // -----------------------------
+  // ADD DONATION
+  // -----------------------------
+  Future<void> addDonation(DaanModel daan) async {
     isLoading.value = true;
     try {
       final created = await DaanService.add(daan);
+
+      // UI list update
       list.insert(0, created);
-      Get.snackbar('Success', 'Daan added', snackPosition: SnackPosition.BOTTOM);
+
+      // dashboard sync
+      final homeCtrl = Get.find<TempleHomeController>();
+      homeCtrl.homeData.update((h) {
+        h?.donation.insert(0, created.toJson());
+      });
+
+      Get.snackbar("Success", "Donation added");
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> updateDaan(DaanModel daan) async {
+  // -----------------------------
+  // UPDATE DONATION
+  // -----------------------------
+  Future<void> updateDonation(DaanModel daan) async {
     isLoading.value = true;
     try {
       final updated = await DaanService.update(daan);
+
       if (updated != null) {
-        final idx = list.indexWhere((d) => d.id == daan.id);
-        if (idx != -1) list[idx] = updated;
-        Get.snackbar('Success', 'Daan updated', snackPosition: SnackPosition.BOTTOM);
+        // UI list update
+        final index = list.indexWhere((d) => d.id == daan.id);
+        if (index != -1) {
+          list[index] = updated;
+        }
+
+        // dashboard sync
+        final homeCtrl = Get.find<TempleHomeController>();
+        homeCtrl.homeData.update((h) {
+          final i = h?.donation.indexWhere((e) => e["_id"] == daan.id) ?? -1;
+          if (i != -1) {
+            h?.donation[i] = updated.toJson();
+          }
+        });
+
+        Get.snackbar("Updated", "Donation updated");
       }
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> deleteDaan(String id) async {
-    final confirm = await Get.dialog<bool>(
-      AlertDialog(
-        title: Text('Delete?'),
-        content: Text('This action cannot be undone.'),
-        actions: [
-          TextButton(onPressed: () => Get.back(result: false), child: Text('Cancel')),
-          ElevatedButton(onPressed: () => Get.back(result: true), child: Text('Delete')),
-        ],
-      ),
-    );
-    if (confirm == true) {
-      isLoading.value = true;
-      try {
-        await DaanService.remove(id);
-        list.removeWhere((d) => d.id == id);
-        Get.snackbar('Deleted', 'Daan removed', snackPosition: SnackPosition.BOTTOM);
-      } finally {
-        isLoading.value = false;
-      }
-    }
-  }
+  // -----------------------------
+  // DELETE DONATION
+  // -----------------------------
+  // Future<void> deleteDonation(String id) async {
+  //   isLoading.value = true;
+  //   try {
+  //     final success = await DaanService.remove(id);
+  //
+  //     if (success) {
+  //       // UI list update
+  //       list.removeWhere((d) => d.id == id);
+  //
+  //       // dashboard sync
+  //       final homeCtrl = Get.find<TempleHomeController>();
+  //       homeCtrl.homeData.update((h) {
+  //         h?.donation.removeWhere((e) => e["_id"] == id);
+  //       });
+  //
+  //       Get.snackbar("Deleted", "Donation removed");
+  //     }
+  //   } catch (e) {
+  //     Get.snackbar("Error", e.toString());
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 }

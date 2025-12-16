@@ -27,7 +27,7 @@ class HelpCenterPage extends StatelessWidget {
 
       appBar: AppBar(
         backgroundColor: Color(0xFFFF7A00),
-        title: Text("Help Center / FAQs", style: TextStyle(color: Colors.white)),
+        title: Text("Help Center / FAQs", style: TextStyle(  color: Colors.white)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Get.back(),

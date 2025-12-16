@@ -1,96 +1,77 @@
-// // lib/services/darshan_service.dart
 //
-// import '../models/live_darshan_model.dart';
+// import 'dart:convert';
+//
+// import 'package:http/http.dart' as http;
+//
+// import '../utils/api_header.dart';
+// import '../utils/apiconstants.dart';
+// import '../utils/apihelper.dart';
 //
 // class DarshanService {
-//   static List<DarshanModel> mockDarshans = [
-//     DarshanModel(
-//       id: "1",
-//       title: "ISKCON Krishna Janmashtami Celebration Live Darshan",
-//       templeName: "ISKCON Temple Vrindavan",
-//       liveLink: "https://youtube.com/watch?v=gryj264eu",
-//       webImage: "https://picsum.photos/600/400?random=1",
-//       mobileImage: "https://picsum.photos/400/600?random=1",
-//       createdAt: DateTime.now().subtract(Duration(days: 2)),
-//       isLive: true, description: '', subtitle: '', image: '',
-//     ),
-//     // Add more mock data...
-//   ];
+//   static Future<Map<String, dynamic>> createDarshan(
+//       Map<String, dynamic> body) async {
+//     final res = await http.post(
+//       Uri.parse(ApiConstants.liveDarshan),
+//       headers: ApiHeaders.headers(),
+//       body: jsonEncode(body),
+//     );
 //
-//   static Future<List<DarshanModel>> getAll() async {
-//     await Future.delayed(Duration(seconds: 1));
-//     return mockDarshans;
+//     return ApiHelper.handleResponse(res);
 //   }
 //
-//   static Future<void> add(DarshanModel darshan) async {
-//     await Future.delayed(Duration(seconds: 2));
-//     mockDarshans.insert(0, darshan..id = DateTime.now().toString());
+//   static Future<Map<String, dynamic>> updateDarshan(
+//       String id,
+//       Map<String, dynamic> body,
+//       ) async {
+//     final res = await http.put(
+//       Uri.parse("${ApiConstants.liveDarshan}/$id"),
+//       headers: ApiHeaders.headers(),
+//       body: jsonEncode(body),
+//     );
+//
+//     return ApiHelper.handleResponse(res);
 //   }
 //
-//   static Future<void> update(DarshanModel darshan) async {
-//     await Future.delayed(Duration(seconds: 2));
-//     final index = mockDarshans.indexWhere((e) => e.id == darshan.id);
-//     if (index != -1) mockDarshans[index] = darshan;
-//   }
-//
-//   static Future<void> delete(String id) async {
-//     await Future.delayed(Duration(seconds: 1));
-//     mockDarshans.removeWhere((e) => e.id == id);
-//   }
 // }
 
-
-
-// lib/services/darshan_service.dart
-
-import '../models/live_darshan_model.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import '../utils/api_header.dart';
+import '../utils/apiconstants.dart';
 
 class DarshanService {
-  static List<DarshanModel> mockDarshans = [
-    DarshanModel(
-      id: "1",
-      title: "ISKCON Krishna Janmashtami Celebration Live Darshan",
-      templeName: "ISKCON Temple Vrindavan",
-      liveLink: "https://youtube.com/watch?v=gryj264eu",
-      webImage: "https://picsum.photos/600/400?random=1",
-      mobileImage: "https://picsum.photos/400/600?random=1",
-      createdAt: DateTime.now().subtract(const Duration(days: 2)),
-      isLive: true,
-      description: "Live darshan of ISKCON Janmashtami event",
-      subtitle: "Special Celebration",
-      image: "https://picsum.photos/500/300?random=55",
-    ),
-  ];
 
-  /// Get all darshans
-  static Future<List<DarshanModel>> getAll() async {
-    await Future.delayed(const Duration(milliseconds: 800));
-    return mockDarshans;
-  }
+  static Future<Map<String, dynamic>> createDarshanMultipart({
+    required String title,
+    required String embeddedLink,
+    required String imagePath,
+    required String status,
+  }) async {
 
-  /// Add new darshan
-  static Future<void> add(DarshanModel darshan) async {
-    await Future.delayed(const Duration(milliseconds: 600));
+    final uri = Uri.parse(ApiConstants.liveDarshan);
 
-    final newId = DateTime.now().millisecondsSinceEpoch.toString();
-    final item = darshan.copyWith(id: newId);
+    final request = http.MultipartRequest("POST", uri);
 
-    mockDarshans.insert(0, item);
-  }
+    // headers (DO NOT set content-type manually)
+    request.headers.addAll(ApiHeaders.headers());
 
-  /// Update existing darshan
-  static Future<void> update(DarshanModel darshan) async {
-    await Future.delayed(const Duration(milliseconds: 600));
+    // fields
+    request.fields["title"] = title;
+    request.fields["embeddedLink"] = embeddedLink;
+    request.fields["status"] = status;
 
-    final index = mockDarshans.indexWhere((e) => e.id == darshan.id);
-    if (index != -1) {
-      mockDarshans[index] = darshan;
-    }
-  }
+    // file
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        "mobile_image",
+        imagePath,
+      ),
+    );
 
-  /// Delete darshan
-  static Future<void> delete(String id) async {
-    await Future.delayed(const Duration(milliseconds: 400));
-    mockDarshans.removeWhere((e) => e.id == id);
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    return jsonDecode(response.body);
   }
 }

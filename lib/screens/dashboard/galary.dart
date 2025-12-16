@@ -9,30 +9,31 @@ class GalleryTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final GalleryController controller = Get.find();
+    final controller = Get.find<GalleryController>();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ----- HEADER BOX -----
+
+          // ---------------- HEADER INFO BOX ----------------
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
               color: const Color(0xFFFFF1E9),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Text(
-              "Upload Images\nSupported format JPG, GIF, Max size 2MB",
+              "Upload Images\nSupported formats: JPG, PNG, Max size 2MB",
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 14),
 
-          // ----- UPLOAD BOX -----
+          // ---------------- UPLOAD BUTTON ----------------
           GestureDetector(
             onTap: controller.pickAndAddImage,
             child: DottedBorder(
@@ -46,20 +47,15 @@ class GalleryTab extends StatelessWidget {
                 padding: const EdgeInsets.all(30),
                 child: const Column(
                   children: [
-                    Icon(Icons.cloud_upload,
-                        size: 50, color: Color(0xFFFF7722)),
+                    Icon(Icons.cloud_upload, size: 50, color: Color(0xFFFF7722)),
                     SizedBox(height: 12),
-                    Text(
-                      "Upload Image",
-                      style: TextStyle(
-                          color: Color(0xFFFF7722),
-                          fontWeight: FontWeight.w500),
-                    ),
+                    Text("Upload Image",
+                        style: TextStyle(
+                            color: Color(0xFFFF7722),
+                            fontWeight: FontWeight.w500)),
                     SizedBox(height: 8),
-                    Text(
-                      "Please upload JPG / PNG under 2MB",
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
+                    Text("Please upload JPG / PNG under 2MB",
+                        style: TextStyle(fontSize: 12, color: Colors.grey)),
                   ],
                 ),
               ),
@@ -68,80 +64,43 @@ class GalleryTab extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          // ----- UPLOADING LIST -----
-          Obx(
-                () => Column(
-              children: controller.uploadingList.map((item) {
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.file(
-                          item.file,
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.cover,
-                        ),
+          // ---------------- SAVED IMAGES HEADER + DELETE BUTTON ----------------
+          Obx(() {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Saved Images",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+
+                // Delete Selected Button
+                if (controller.selectedImages.isNotEmpty)
+                  GestureDetector(
+                    onTap: controller.deleteSelected,
+                    child: Container(
+                      padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(6),
                       ),
-                      const SizedBox(width: 10),
-
-                      // Name + Progress bar
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item.file.path.split('/').last,
-                              style: const TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.w500),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            LinearProgressIndicator(
-                              value: item.progress / 100,
-                              color: Colors.orange,
-                              backgroundColor: Colors.grey.shade300,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              "${item.progress}%",
-                              style: const TextStyle(
-                                  fontSize: 11, color: Colors.black87),
-                            ),
-                          ],
-                        ),
+                      child: Text(
+                        "Delete (${controller.selectedImages.length})",
+                        style: const TextStyle(
+                            color: Colors.white, fontSize: 12),
                       ),
-                    ],
+                    ),
                   ),
-                );
-              }).toList(),
-            ),
-          ),
+              ],
+            );
+          }),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
-          // ----- SAVED IMAGES TITLE -----
-          const Text(
-            "Saved Images",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          const Text(
-            "Images can be updated anytime",
-            style: TextStyle(fontSize: 12, color: Colors.grey),
-          ),
-          const SizedBox(height: 16),
-
-          // ----- SAVED IMAGES GRID -----
-          Obx(
-                () => GridView.builder(
+          // ---------------- IMAGES GRID ----------------
+          Obx(() {
+            return GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -151,23 +110,18 @@ class GalleryTab extends StatelessWidget {
               ),
               itemCount: controller.images.length,
               itemBuilder: (ctx, i) {
-                bool isSelected = controller.selectedIndex.value == i;
+                final isSelected = controller.selectedImages.contains(i);
 
                 return GestureDetector(
+                  onTap: () => controller.selectImage(i),
                   onLongPress: () => controller.selectImage(i),
-                  onTap: () => controller.clearSelection(),
+
                   child: Stack(
                     children: [
+                      // IMAGE
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: controller.images[i].startsWith("assets")
-                            ? Image.asset(
-                          controller.images[i],
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                        )
-                            : Image.file(
+                        child: Image.file(
                           File(controller.images[i]),
                           fit: BoxFit.cover,
                           width: double.infinity,
@@ -175,23 +129,22 @@ class GalleryTab extends StatelessWidget {
                         ),
                       ),
 
-                      // DELETE ICON ONLY ON SELECTION
+                      // SELECTION OVERLAY
                       if (isSelected)
-                        Positioned(
-                          top: 4,
-                          right: 4,
-                          child: GestureDetector(
-                            onTap: () => controller.deleteImage(i),
-                            child: const Icon(Icons.delete,
-                                color: Colors.red, size: 26),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.black26,
+                            border: Border.all(
+                                color: Colors.orange, width: 2),
                           ),
                         ),
                     ],
                   ),
                 );
               },
-            ),
-          ),
+            );
+          }),
 
           const SizedBox(height: 50),
         ],
@@ -199,4 +152,3 @@ class GalleryTab extends StatelessWidget {
     );
   }
 }
-

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -6,18 +9,21 @@ import '../../controllers/BottomNavController.dart';
 import '../../controllers/darshan_controller.dart';
 import '../../controllers/dashboard_cotroller.dart';
 import '../../models/live_darshan_model.dart';
-import '../budhism/boverview.dart';
+
 import 'live_darshan/Livedarshan.dart';
 import 'live_darshan/darshan_details.dart';
 import 'manage.dart';
 import 'menupage.dart';
+import 'notification.dart';
 import 'overview.dart';
 
 class DashboardPage extends StatelessWidget {
    DashboardPage({super.key});
   // final DarshanController controller = Get.put((DarshanController()));
    // inside class
-   final TempleHomeController controller = Get.put(TempleHomeController());
+   final TempleHomeController controller = Get.find<TempleHomeController>();
+   final items = Get.find<DarshanController>().liveDarshans;
+
 
 
    @override
@@ -32,8 +38,8 @@ class DashboardPage extends StatelessWidget {
         preferredSize: const Size.fromHeight(60),
         child: ClipRRect(
           borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(10),
-            bottomRight: Radius.circular(10),
+            bottomLeft: Radius.circular(8),
+            bottomRight: Radius.circular(8),
           ),
           child: AppBar(
             backgroundColor: const Color(0xFFFF7A00),
@@ -53,15 +59,26 @@ class DashboardPage extends StatelessWidget {
               ),
             ),
             actions: [
-              Padding(
-                padding: EdgeInsets.only(right: 16),
-                child: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  radius: 18,
-                  child: Icon(Icons.person, color: Colors.black),
+              GestureDetector(
+                onTap: () {
+                  Get.to(() => NotificationsPage());
+                },
+                child: Container(
+                  margin: EdgeInsets.only(right: 16),
+                  padding: EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.white,     // PURE WHITE BG
+                    shape: BoxShape.circle,  // CIRCULAR SHAPE
+                  ),
+                  child: Icon(
+                    Icons.notifications,
+                    color: Colors.black,
+                    size: 20,
+                  ),
                 ),
               ),
             ],
+
           ),
         ),
       ),
@@ -139,10 +156,29 @@ class DashboardPage extends StatelessWidget {
 
             const SizedBox(height: 16),
 
+            // SizedBox(
+            //   height: 210,
+            //   child: Obx(() {
+            //     final items = Get.find<DarshanController>().liveDarshans;
+            //
+            //
+            //     return ListView.separated(
+            //       scrollDirection: Axis.horizontal,
+            //       itemCount: items.length,
+            //       separatorBuilder: (_, __) => const SizedBox(width: 14),
+            //       itemBuilder: (_, i) => _liveDarshanCard(items[i]),
+            //     );
+            //   }
+            //   ),
+            // ),
             SizedBox(
               height: 210,
               child: Obx(() {
-                final items = Get.find<DarshanController>().darshans;
+                final items = Get.find<DarshanController>().liveDarshans;
+
+                if (items.isEmpty) {
+                  return const Center(child: Text("No Live Darshan"));
+                }
 
                 return ListView.separated(
                   scrollDirection: Axis.horizontal,
@@ -152,6 +188,8 @@ class DashboardPage extends StatelessWidget {
                 );
               }),
             ),
+
+
 
 
             const SizedBox(height: 28),
@@ -324,105 +362,103 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  Widget _liveDarshanCard(DarshanModel darshan) {
-    return InkWell(
-      onTap: () {
-        Get.to(() => DarshanDetailPage(darshan: darshan));
-      },
-      child: Container(
-        width: 180,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          color: Colors.white,
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-                  child: Image.network(
-                    darshan.webImage ?? "",
-                    height: 130,
-                    width: 180,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Text(
-                      "Live",
-                      style: TextStyle(color: Colors.white, fontSize: 11),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+   Widget _liveDarshanCard(DarshanModel darshan) {
+     // SAFE IMAGE PICKER
+     String? img;
 
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Text(
-                darshan.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12, height: 1.3),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+     if (darshan.mobile_image != null && darshan.mobile_image!.isNotEmpty) {
+       img = darshan.mobile_image!;
+     // } else if (darshan.webImage != null && darshan.webImage!.isNotEmpty) {
+     //   img = darshan.webImage!;
+     } else if (darshan.image != null && darshan.image!.isNotEmpty) {
+       img = darshan.image!;
+     } else {
+       img = "https://picsum.photos/200";
+     }
+
+     return GestureDetector(
+       onTap: () => Get.to(() => DarshanDetailPage(darshan: darshan)),
+       child: Column(
+         crossAxisAlignment: CrossAxisAlignment.start,
+         children: [
+           Container(
+             height: 160,
+             width: 160,
+             decoration: BoxDecoration(
+               color: Colors.grey.shade200,
+               borderRadius: BorderRadius.circular(8),
+             ),
+             child: Stack(
+               children: [
+                 Positioned.fill(
+                   child: img!.startsWith("http")
+                       ? CachedNetworkImage(
+                     imageUrl: img!,
+                     fit: BoxFit.cover,
+                     placeholder: (_, __) =>
+                     const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                     errorWidget: (_, __, ___) =>
+                     const Icon(Icons.broken_image),
+                   )
+                       : Image.file(
+                     File(img!),
+                     fit: BoxFit.cover,
+                   ),
+                 ),
 
 
-  // Widget _overviewCard() {
-  //   return Container(
-  //     padding: const EdgeInsets.all(14),
-  //     decoration: BoxDecoration(
-  //       borderRadius: BorderRadius.circular(14),
-  //       border: Border.all(color: Colors.grey.shade300),
-  //     ),
-  //     child: Row(
-  //       children: [
-  //         ClipRRect(
-  //           borderRadius: BorderRadius.circular(12),
-  //           child: Image.asset(
-  //             "assets/images/temp.png",
-  //             height: 80,
-  //             width: 90,
-  //             fit: BoxFit.cover,
-  //           ),
-  //         ),
-  //         const SizedBox(width: 14),
-  //         const Expanded(
-  //           child: Text(
-  //             "ISKCON Temple Vrindavan\nHM98+352, Raman Reti, Vrindavan, Uttar Pradesh 281121",
-  //             style: TextStyle(fontSize: 13, height: 1.4),
-  //           ),
-  //         )
-  //       ],
-  //     ),
-  //   );
-  // }
+                 // ------------- LIVE BADGE (TOP RIGHT) -------------
+                 if (darshan.isLive)
+                   Positioned(
+                     top: 6,
+                     right: 6,
+                     child: Container(
+                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                       decoration: BoxDecoration(
+                         color: Colors.red,
+                         borderRadius: BorderRadius.circular(10),
+                       ),
+                       child: const Text(
+                         "LIVE",
+                         style: TextStyle(
+                           color: Colors.white,
+                           fontSize: 10,
+                           fontWeight: FontWeight.bold,
+                         ),
+                       ),
+                     ),
+                   ),
+               ],
+             ),
+           ),
+
+           const SizedBox(height: 6),
+           SizedBox(
+             width: 160,
+             child: Text(
+               darshan.title,
+               maxLines: 2,
+               overflow: TextOverflow.ellipsis,
+               style: const TextStyle(
+                 fontSize: 12,
+                 color: Colors.black,
+               ),
+             ),
+           ),
+         ],
+       ),
+     );
+   }
 
    Widget _overviewCard() {
      return Obx(() {
        final home = controller.homeData.value;
-       if (controller.loading.value) {
-         return Container(
-           height: 120,
-           child: Center(child: CircularProgressIndicator()),
-         );
-       }
+       // if (controller.loading.value) {
+       //   return Container(
+       //     height: 120,
+       //     child: Center(child: CircularProgressIndicator()),
+       //   );
+       // }
        if (home == null) {
          return Container(
            padding: const EdgeInsets.all(14),
@@ -440,19 +476,23 @@ class DashboardPage extends StatelessWidget {
            children: [
              ClipRRect(
                borderRadius: BorderRadius.circular(12),
-               child: Image.network(
-                 home.image,
+               child:
+               CachedNetworkImage(
+                 imageUrl: home.image,
                  height: 80,
                  width: 90,
                  fit: BoxFit.cover,
-                 errorBuilder: (context, error, stack) =>
-                     Container(
-                       height: 80,
-                       width: 90,
-                       color: Colors.grey.shade300,
-                       child: Icon(Icons.broken_image, color: Colors.grey),
-                     ),
+                 placeholder: (_, __) =>
+                 const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                 errorWidget: (_, __, ___) => Container(
+                   height: 80,
+                   width: 90,
+                   color: Colors.grey.shade300,
+                   child: const Icon(Icons.broken_image, color: Colors.grey),
+                 ),
                ),
+
+
              ),
 
              const SizedBox(width: 14),
@@ -465,7 +505,8 @@ class DashboardPage extends StatelessWidget {
            ],
          ),
        );
-     });
+     }
+     );
    }
 
 
@@ -492,3 +533,4 @@ class DashboardPage extends StatelessWidget {
    }
 
 }
+

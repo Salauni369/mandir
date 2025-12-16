@@ -9,64 +9,6 @@ import 'timming.dart';
 import 'social_media.dart';
 import 'galary.dart';
 
-// class CustomBottomNav extends StatelessWidget {
-//   final int currentIndex;
-//   const CustomBottomNav({super.key, required this.currentIndex});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       margin: const EdgeInsets.all(16),
-//       padding: const EdgeInsets.symmetric(vertical: 14),
-//       decoration: BoxDecoration(
-//         color: const Color(0xFFFF7722),
-//         borderRadius: BorderRadius.circular(30),
-//         boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))],
-//       ),
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.spaceAround,
-//         children: [
-//           _navItem("dashboard.svg", "Dashboard", 0, '/dashboard'),
-//           _navItem("manage.svg", "Manage", 1, '/manage'),
-//           _navItem("live.svg", "Live", 2, '/live'),
-//           _navItem("donate.svg", "Donate", 3, '/donate'),
-//         ],
-//       ),
-//     );
-//   }
-//
-//   Widget _navItem(String icon, String label, int index, String route) {
-//     bool isSelected = currentIndex == index;
-//     return GestureDetector(
-//       onTap: () {
-//         if (!isSelected) Get.offAllNamed(route);
-//       },
-//       child: Column(
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           SvgPicture.asset(
-//             "assets/icons/$icon",
-//             width: 26,
-//             height: 26,
-//             colorFilter: ColorFilter.mode(
-//               isSelected ? Colors.yellow : Colors.white,
-//               BlendMode.srcIn,
-//             ),
-//           ),
-//           const SizedBox(height: 4),
-//           Text(
-//             label,
-//             style: TextStyle(
-//               color: isSelected ? Colors.yellow : Colors.white,
-//               fontSize: 11,
-//               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
 
 class ManageMainPage extends StatelessWidget {
  const ManageMainPage({super.key});
@@ -85,8 +27,8 @@ class ManageMainPage extends StatelessWidget {
           decoration: const BoxDecoration(
             color: Color(0xFFFF7722),
             borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(15),
-              bottomRight: Radius.circular(15),
+              bottomLeft: Radius.circular(8),
+              bottomRight: Radius.circular(8),
             ),
           ),
           child: AppBar(
@@ -102,7 +44,7 @@ class ManageMainPage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
 
                   onPressed: () => controller.saveAll(),
-                  child: const Text("Update", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16,)),
+                  child: const Text("Update", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14,)),
                 ),
               ),
             ],

@@ -1,50 +1,113 @@
+
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 import '../models/donation_model.dart';
+import '../utils/api_header.dart';
+import '../utils/apiconstants.dart';
 
 class DaanService {
-  static final List<DaanModel> _store = [
-    DaanModel(
-      id: '1',
-      imageUrl: 'https://picsum.photos/seed/1/200/200',
-      title: 'Help ISKCON\'s Govardhan Eco Village in caring for cows and other animals',
-      buttonLabel: 'Donate Now',
-      buttonUrl: 'https://example.com/donate',
-      createdAt: DateTime.now().subtract(Duration(days: 3)),
-    ),
-    DaanModel(
-      id: '2',
-      imageUrl: 'https://picsum.photos/seed/2/200/200',
-      title: 'Support the temple renovation fund',
-      buttonLabel: 'Donate Now',
-      buttonUrl: 'https://example.com/donate2',
-      createdAt: DateTime.now().subtract(Duration(days: 7)),
-    ),
-  ];
 
+  /* =========================
+     GET DONATIONS
+     ========================= */
   static Future<List<DaanModel>> getAll() async {
-    await Future.delayed(Duration(milliseconds: 500));
-    return List.from(_store);
-  }
+    final uri = Uri.parse(ApiConstants.donation);
 
-  static Future<DaanModel> add(DaanModel daan) async {
-    await Future.delayed(Duration(milliseconds: 500));
-    daan.id = DateTime.now().millisecondsSinceEpoch.toString();
-    _store.insert(0, daan);
-    return daan;
-  }
+    final response = await http.get(
+      uri,
+      headers: ApiHeaders.headers(),
+    );
 
-  static Future<DaanModel?> update(DaanModel daan) async {
-    await Future.delayed(Duration(milliseconds: 500));
-    final idx = _store.indexWhere((d) => d.id == daan.id);
-    if (idx != -1) {
-      _store[idx] = daan;
-      return daan;
+    print("GET URL: $uri");
+    print("STATUS: ${response.statusCode}");
+    print("BODY: ${response.body}");
+
+    if (response.statusCode != 200) {
+      throw Exception("Failed to fetch donations");
     }
-    return null;
+
+    final decoded = jsonDecode(response.body);
+
+    final List list =
+        decoded["data"]?["user"]?["temple"]?["donation"] ?? [];
+
+    return list.map((e) => DaanModel.fromJson(e)).toList();
   }
 
-  static Future<void> remove(String id) async {
-    await Future.delayed(Duration(milliseconds: 300));
-    _store.removeWhere((d) => d.id == id);
+  /* =========================
+     ADD DONATION
+     ========================= */
+  static Future<DaanModel> add(DaanModel daan) async {
+    final uri =
+    Uri.parse("${ApiConstants.donation}/donation");
+
+    final response = await http.post(
+      uri,
+      headers: ApiHeaders.headers(),
+      body: jsonEncode(daan.toJson()),
+    );
+
+    print("POST URL: $uri");
+    print("STATUS: ${response.statusCode}");
+    print("BODY: ${response.body}");
+
+    if (response.statusCode != 200 &&
+        response.statusCode != 201) {
+      throw Exception("Failed to add donation");
+    }
+
+    final decoded = jsonDecode(response.body);
+    return DaanModel.fromJson(decoded["data"]);
+  }
+
+  /* =========================
+     UPDATE DONATION
+     ========================= */
+  static Future<DaanModel> update(DaanModel daan) async {
+    if (daan.id.isEmpty) {
+      throw Exception("Donation ID required");
+    }
+
+    final uri = Uri.parse(
+        "${ApiConstants.donation}/donation/${daan.id}");
+
+    final response = await http.put(
+      uri,
+      headers: ApiHeaders.headers(),
+      body: jsonEncode(daan.toJson()),
+    );
+
+    print("PUT URL: $uri");
+    print("STATUS: ${response.statusCode}");
+    print("BODY: ${response.body}");
+
+    if (response.statusCode != 200) {
+      throw Exception("Failed to update donation");
+    }
+
+    final decoded = jsonDecode(response.body);
+    return DaanModel.fromJson(decoded["data"]);
+  }
+
+  /* =========================
+     DELETE DONATION
+     ========================= */
+  static Future<bool> delete(String donationId) async {
+    final uri = Uri.parse(
+        "${ApiConstants.donation}/donation/$donationId");
+
+    final response = await http.delete(
+      uri,
+      headers: ApiHeaders.headers(),
+    );
+
+    print("DELETE URL: $uri");
+    print("STATUS: ${response.statusCode}");
+
+    return response.statusCode == 200;
   }
 }
+
 

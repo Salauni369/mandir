@@ -1,141 +1,131 @@
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-// import '../../controllers/manage_controller.dart';
-//
-// class SocialMediaTab extends StatelessWidget {
-//   const SocialMediaTab({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final ManageController controller = Get.find();
-//
-//     return SingleChildScrollView(
-//       padding: const EdgeInsets.all(20),
-//       child: Obx(() => Column(
-//         children: [
-//           for (int i = 0; i < controller.socialList.length; i++)
-//             Column(children: [
-//               _socialField(controller, i),
-//               const SizedBox(height: 16),
-//             ]),
-//           const SizedBox(height: 50),
-//         ],
-//       )),
-//     );
-//   }
-//
-//   Widget _socialField(ManageController controller, int i) {
-//     final item = controller.socialList[i];
-//     final textCtrl = TextEditingController()..text = item.username;
-//
-//     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-//       Text(item.platform, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-//       const SizedBox(height: 8),
-//       Row(children: [
-//         Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: const BorderRadius.only(topLeft: Radius.circular(2), bottomLeft: Radius.circular(2))), child: Text(item.prefix, style: const TextStyle(fontWeight: FontWeight.w500))),
-//         Expanded(child: TextField(enabled: item.enabled, controller: textCtrl, decoration: InputDecoration(hintText: item.username, filled: true, fillColor: Colors.grey.shade100, border: OutlineInputBorder(borderRadius: const BorderRadius.only(topRight: Radius.circular(2), bottomRight: Radius.circular(2)), borderSide: BorderSide.none)))),
-//         //const SizedBox(width: 8),
-//         //ElevatedButton(onPressed: () => controller.updateSocialUsername(i, textCtrl.text.trim()), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF7722), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))), child: const Text("Save")),
-//       ]),
-//     ]);
-//   }
-// }
-
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import '../../controllers/manage_controller.dart';
 
-class SocialMediaTab extends StatelessWidget {
+class SocialMediaTab extends StatefulWidget {
   const SocialMediaTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final ManageController controller = Get.find();
+  State<SocialMediaTab> createState() => _SocialMediaLinksTabState();
+}
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Obx(() => Column(
-        children: [
-          for (int i = 0; i < controller.socialList.length; i++)
-            Column(
-              children: [
-                _socialField(controller, i),
-                const SizedBox(height: 16),
-              ],
+class _SocialMediaLinksTabState extends State<SocialMediaTab> {
+  final youtubeCtrl = TextEditingController();
+  final facebookCtrl = TextEditingController();
+  final instagramCtrl = TextEditingController();
+  final linkedinCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    youtubeCtrl.dispose();
+    facebookCtrl.dispose();
+    instagramCtrl.dispose();
+    linkedinCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSocialField(
+              label: "Youtube",
+              prefix: "youtube.com/",
+              controller: youtubeCtrl,
+              hint: "@ISKCONVrndavan",
             ),
-          const SizedBox(height: 50),
-        ],
-      )),
+            const SizedBox(height: 20),
+            _buildSocialField(
+              label: "Facebook",
+              prefix: "facebook.com/",
+              controller: facebookCtrl,
+              hint: "iskconvrindavann",
+            ),
+            const SizedBox(height: 20),
+            _buildSocialField(
+              label: "Instagram",
+              prefix: "Instagram.com/",
+              controller: instagramCtrl,
+              hint: "iskcon_vrindavana",
+            ),
+            const SizedBox(height: 20),
+            _buildSocialField(
+              label: "Linkedin",
+              prefix: "Linkedin.com/in/",
+              controller: linkedinCtrl,
+              hint: "N/A",
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _socialField(ManageController controller, int i) {
-    final item = controller.socialList[i];
-    final textCtrl = TextEditingController()..text = item.username;
-
+  Widget _buildSocialField({
+    required String label,
+    required String prefix,
+    required TextEditingController controller,
+    required String hint,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // PLATFORM NAME — untouched
         Text(
-          item.platform,
+          label,
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
+            color: Colors.black87,
           ),
         ),
         const SizedBox(height: 8),
-
-        Row(
-          children: [
-            // LEFT PREFIX BOX (font size 12)
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(2),
-                  bottomLeft: Radius.circular(2),
-                ),
-              ),
-              child: Text(
-                item.prefix,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 12,      // 👈 FONT SIZE ONLY CHANGE
-                ),
-              ),
-            ),
-
-            // TEXTFIELD (font size 12)
-            Expanded(
-              child: TextField(
-                enabled: item.enabled,
-                controller: textCtrl,
-                style: const TextStyle(
-                  fontSize: 12,       // 👈 MAIN INPUT FONT SIZE
-                ),
-                decoration: InputDecoration(
-                  hintText: item.username,
-                  hintStyle: const TextStyle(
-                    fontSize: 12,     // 👈 HINT FONT SIZE
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: Colors.grey.shade400, width: 1),
+          ),
+          child: Row(
+            children: [
+              // Prefix container
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(4),
+                    bottomLeft: Radius.circular(4),
                   ),
-                  filled: true,
-                  fillColor: Colors.grey.shade100,
-                  border: OutlineInputBorder(
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(2),
-                      bottomRight: Radius.circular(2),
-                    ),
-                    borderSide: BorderSide.none,
+                ),
+                child: Text(
+                  prefix,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
                   ),
                 ),
               ),
-            ),
-          ],
+              // Text field
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  style: const TextStyle(fontSize: 12, color: Colors.black),
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    hintStyle: TextStyle(fontSize: 12, color: Colors.grey.shade400),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );

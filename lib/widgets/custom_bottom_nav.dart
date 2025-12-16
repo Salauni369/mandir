@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/controllers/add_donation.dart';
 import 'package:get/get.dart';
 import '../controllers/BottomNavController.dart';
 import '../screens/dashboard/dashboard_page.dart';
@@ -7,7 +6,7 @@ import '../screens/dashboard/donation/add_donation_page.dart';
 import '../screens/dashboard/donation/daanmain.dart';
 import '../screens/dashboard/live_darshan/Livedarshan.dart';
 import '../screens/dashboard/manage.dart';
-
+import 'package:get_storage/get_storage.dart';
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
@@ -16,7 +15,7 @@ class MyHomePage extends StatefulWidget {
 }
 class _MyHomePageState extends State<MyHomePage> {
   final bottomNav = Get.put(BottomNavController());
-
+  final box = GetStorage();
   static final List<Widget> _widgetOptions = [
     DashboardPage(),
     ManageMainPage(),
@@ -26,13 +25,22 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final religion = box.read("religion") ?? "No religion saved";
     return Scaffold(
       body: Obx(() => Center(
         child: _widgetOptions.elementAt(bottomNav.selectedIndex.value),
       )),
 
       bottomNavigationBar: Obx(() => BottomNavigationBar(
-        items: const [
+        items:religion=='Sikhism'?
+
+
+        const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Dashboard'),
+          BottomNavigationBarItem(icon: Icon(Icons.note), label: 'Manage'),
+          BottomNavigationBarItem(icon: Icon(Icons.live_tv), label: 'Darshan'),
+          BottomNavigationBarItem(icon: Icon(Icons.clean_hands), label: 'Daan'),
+        ]: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Dashboard'),
           BottomNavigationBarItem(icon: Icon(Icons.note), label: 'Manage'),
           BottomNavigationBarItem(icon: Icon(Icons.live_tv), label: 'Darshan'),

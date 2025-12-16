@@ -1,10 +1,11 @@
+// // lib/models/daan_model.dart
 // class DaanModel {
 //   String id;
 //   final String imageUrl;
 //   final String title;
 //   final String buttonLabel;
 //   final String buttonUrl;
-//   final DateTime createdAt;
+//   final DateTime? createdAt;
 //
 //   DaanModel({
 //     required this.id,
@@ -12,8 +13,33 @@
 //     required this.title,
 //     required this.buttonLabel,
 //     required this.buttonUrl,
-//     required this.createdAt,
+//     this.createdAt,
 //   });
+//
+//   // <- THIS is required by your service: DaanModel.fromJson(...)
+//   factory DaanModel.fromJson(Map<String, dynamic> json) {
+//     return DaanModel(
+//       id: (json['_id'] ?? json['id'] ?? '').toString(),
+//       imageUrl: json['image'] ?? json['imageUrl'] ?? '',
+//       title: (json['title'] ?? json['description'] ?? '').toString(),
+//       buttonLabel: (json['button_text'] ?? json['buttonLabel'] ?? '').toString(),
+//       buttonUrl: (json['button_link'] ?? json['buttonUrl'] ?? '').toString(),
+//       createdAt: json['createdAt'] != null
+//           ? DateTime.tryParse(json['createdAt'].toString())
+//           : null,
+//     );
+//   }
+//
+//   Map<String, dynamic> toJson() {
+//     return {
+//       "_id": id,
+//       "image": imageUrl,
+//       "title": title,
+//       "button_text": buttonLabel,
+//       "button_link": buttonUrl,
+//       if (createdAt != null) "createdAt": createdAt!.toIso8601String(),
+//     };
+//   }
 //
 //   DaanModel copyWith({
 //     String? id,
@@ -32,68 +58,65 @@
 //       createdAt: createdAt ?? this.createdAt,
 //     );
 //   }
-//
-//   factory DaanModel.fromJson(Map<String, dynamic> json) => DaanModel(
-//     id: json['id'] as String,
-//     imageUrl: json['imageUrl'] as String,
-//     title: json['title'] as String,
-//     buttonLabel: json['buttonLabel'] as String,
-//     buttonUrl: json['buttonUrl'] as String,
-//     createdAt: DateTime.parse(json['createdAt'] as String),
-//   );
-//
-//   Map<String, dynamic> toJson() => {
-//     'id': id,
-//     'imageUrl': imageUrl,
-//     'title': title,
-//     'buttonLabel': buttonLabel,
-//     'buttonUrl': buttonUrl,
-//     'createdAt': createdAt.toIso8601String(),
-//   };
 // }
 
-// lib/models/daan_model.dart  ← YE EK HI FILE RAKHNA
 class DaanModel {
-   String id;
-  final String imageUrl;
-  final String title;           // ← YE HONA CHAHIYE
-  final String buttonLabel;     // ← YE BHI
-  final String buttonUrl;       // ← YE BHI
-  final DateTime createdAt;
+  final String id;
+  final String image;
+  final String buttonText;
+  final String buttonLink;
+  final String description;
 
   DaanModel({
     required this.id,
-    required this.imageUrl,
-    required this.title,
-    required this.buttonLabel,
-    required this.buttonUrl,
-    required this.createdAt,
+    required this.image,
+    required this.buttonText,
+    required this.buttonLink,
+    required this.description,
   });
 
-  factory DaanModel.fromJson(Map<String, dynamic> json) => DaanModel(
-    id: json['id'] ?? '',
-    imageUrl: json['imageUrl'] ?? '',
-    title: json['title'] ?? '',
-    buttonLabel: json['buttonLabel'] ?? '',
-    buttonUrl: json['buttonUrl'] ?? '',
-    createdAt: DateTime.now(),
-  );
+  /// -------------------------
+  /// FROM JSON
+  /// -------------------------
+  factory DaanModel.fromJson(Map<String, dynamic> json) {
+    return DaanModel(
+      id: json["_id"] ?? "",
+      image: json["image"] ?? "",
+      buttonText: json["button_text"] ?? "",
+      buttonLink: json["button_link"] ?? "",
+      description: json["description"] ?? "",
+    );
+  }
 
+  /// -------------------------
+  /// TO JSON
+  /// -------------------------
+  Map<String, dynamic> toJson() {
+    return {
+      "image": image,
+      "button_text": buttonText,
+      "button_link": buttonLink,
+      "description": description,
+    };
+  }
+
+  /// -------------------------
+  /// COPY WITH (🔥 FIX)
+  /// -------------------------
   DaanModel copyWith({
     String? id,
-    String? imageUrl,
-    String? title,
-    String? buttonLabel,
-    String? buttonUrl,
-    DateTime? createdAt,
+    String? image,
+    String? buttonText,
+    String? buttonLink,
+    String? description,
   }) {
     return DaanModel(
       id: id ?? this.id,
-      imageUrl: imageUrl ?? this.imageUrl,
-      title: title ?? this.title,
-      buttonLabel: buttonLabel ?? this.buttonLabel,
-      buttonUrl: buttonUrl ?? this.buttonUrl,
-      createdAt: createdAt ?? this.createdAt,
+      image: image ?? this.image,
+      buttonText: buttonText ?? this.buttonText,
+      buttonLink: buttonLink ?? this.buttonLink,
+      description: description ?? this.description,
     );
   }
 }
+

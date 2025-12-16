@@ -2,53 +2,110 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-class ImageUploadWidget extends StatelessWidget {
+class ImageUploadWidget extends StatefulWidget {
   final String? imagePath;
   final String placeholderText;
-  final ValueChanged<String> onPicked;
+  final Function(String path) onPicked;
 
   const ImageUploadWidget({
-    Key? key,
-    this.imagePath,
-    this.placeholderText = 'Upload Image',
+    super.key,
+    required this.imagePath,
+    required this.placeholderText,
     required this.onPicked,
-  }) : super(key: key);
+  });
 
-  Future<void> _pickImage(BuildContext context) async {
-    final picked = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 80);
-    if (picked != null) onPicked(picked.path);
+  @override
+  State<ImageUploadWidget> createState() => _ImageUploadWidgetState();
+}
+
+class _ImageUploadWidgetState extends State<ImageUploadWidget> {
+  bool uploading = false;
+
+  Future<void> pickImage() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+
+    if (picked != null) {
+      setState(() => uploading = true);
+
+      await Future.delayed(const Duration(milliseconds: 700)); // fake loading
+
+      setState(() => uploading = false);
+
+      widget.onPicked(picked.path);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _pickImage(context),
-      child: Container(
-        height: 140,
-        width: double.infinity,
-        decoration: BoxDecoration(
+    final hasImage = widget.imagePath != null && widget.imagePath!.isNotEmpty;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ---------------- IMAGE ----------------
+        ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300),
-          color: Colors.white,
+          child: hasImage
+              ? Image(
+            image: widget.imagePath!.startsWith("http")
+                ? NetworkImage(widget.imagePath!)
+                : FileImage(File(widget.imagePath!)) as ImageProvider,
+            width: 110,
+            height: 110,
+            fit: BoxFit.cover,
+          )
+              : Container(
+            width: 110,
+            height: 110,
+            color: Colors.grey.shade300,
+            child: const Icon(Icons.image, size: 40, color: Colors.white),
+          ),
         ),
-        child: imagePath == null
-            ? Center(
+
+        const SizedBox(width: 14),
+
+        // ---------------- TEXT AREA ----------------
+        Expanded(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.cloud_upload_outlined, color: Colors.grey.shade600, size: 32),
-              const SizedBox(height: 8),
-              Text(placeholderText, style: TextStyle(color: Colors.black54)),
+              // FILE NAME
+              Text(
+                widget.placeholderText,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+
+              const SizedBox(height: 6),
+
+              // CHANGE IMAGE BUTTON
+              GestureDetector(
+                onTap: pickImage,
+                child: Text(
+                  uploading ? "Uploading..." : "Change Image",
+                  style: TextStyle(
+                    color: uploading ? Colors.grey : Colors.blue,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 6),
+
+              // PROGRESS INDICATOR
+              if (uploading)
+                const SizedBox(
+                  height: 18,
+                  width: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
             ],
           ),
         )
-            : ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: imagePath!.startsWith('http')
-              ? Image.network(imagePath!, fit: BoxFit.cover)
-              : Image.file(File(imagePath!), fit: BoxFit.cover),
-        ),
-      ),
+      ],
     );
   }
 }
