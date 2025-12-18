@@ -1,8 +1,3 @@
-
-
-
-// lib/screens/darshan/darshan_main_page.dart
-
 import '../../../widgets/live_darshan.dart';
 import '../../../widgets/pastdarshan.dart';
 
@@ -67,6 +62,7 @@ class DarshanMainPage extends StatelessWidget {
         ],
       ),
 
+
       body: Obx(() {
         if (controller.isLoading.value) {
           return Center(
@@ -80,14 +76,20 @@ class DarshanMainPage extends StatelessWidget {
         return RefreshIndicator(
           onRefresh: controller.fetchDarshans,
           child: ListView(
-            padding: EdgeInsets.all(16),
+            padding: EdgeInsets.all(3),
             children: [
 
 
-              Text(
-                "Live Darshan",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Container(
+                width: double.infinity, // 👈 FULL WIDTH
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                color: const Color(0xFFFFF1E9),
+                child: const Text(
+                  "Live Darshans",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ),
+
 
               SizedBox(height: 12),
 
@@ -101,8 +103,8 @@ class DarshanMainPage extends StatelessWidget {
                 gridDelegate:
                 SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 14,
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
                   childAspectRatio: 0.72,
                 ),
                 itemBuilder: (_, i) {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../models/donation_model.dart';
+import '../utils/imageconverter.dart';
 import 'My_text.dart';
 import 'app_colors.dart';
 
@@ -31,9 +32,11 @@ class DaanCard extends StatelessWidget {
         children: [
           // IMAGE
           ClipRRect(
-            borderRadius: BorderRadius.circular(5),
+            borderRadius: BorderRadius.only(topRight: Radius.circular(5) ,topLeft:  Radius.circular(5),bottomRight:  Radius.circular(5),bottomLeft:  Radius.circular(5)),
             child: Image.network(
-              daan.image,
+              ImageConverter.optimizeCloudinaryUrl(daan.image),
+
+
               width: 80,
               height: 80,
               fit: BoxFit.cover,
@@ -53,7 +56,7 @@ class DaanCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  daan.description,
+                  daan.donation_title,
                   style: TextStyle(fontWeight: FontWeight.normal,fontSize: 13),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,

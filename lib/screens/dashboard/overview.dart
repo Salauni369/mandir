@@ -463,8 +463,9 @@ class _OverviewTabState extends State<OverviewTab> {
   }
 
   void _addNewSection() {
+    additionalSections.clear();
     setState(() {
-      additionalSections.add(AdditionalSection());
+      additionalSections.assignAll(manage.additionalSections);
     });
   }
 

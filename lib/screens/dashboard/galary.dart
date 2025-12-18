@@ -2,22 +2,24 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dotted_border/dotted_border.dart';
-import '../../controllers/galary_controller.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
+import '../../controllers/manage_controller.dart';
+import '../../utils/imageconverter.dart';
 
 class GalleryTab extends StatelessWidget {
   const GalleryTab({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<GalleryController>();
+    final controller = Get.find<ManageController>();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-          // ---------------- HEADER INFO BOX ----------------
+          // HEADER INFO BOX
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -33,7 +35,7 @@ class GalleryTab extends StatelessWidget {
 
           const SizedBox(height: 14),
 
-          // ---------------- UPLOAD BUTTON ----------------
+          // UPLOAD BUTTON
           GestureDetector(
             onTap: controller.pickAndAddImage,
             child: DottedBorder(
@@ -49,13 +51,18 @@ class GalleryTab extends StatelessWidget {
                   children: [
                     Icon(Icons.cloud_upload, size: 50, color: Color(0xFFFF7722)),
                     SizedBox(height: 12),
-                    Text("Upload Image",
-                        style: TextStyle(
-                            color: Color(0xFFFF7722),
-                            fontWeight: FontWeight.w500)),
+                    Text(
+                      "Upload Image",
+                      style: TextStyle(
+                        color: Color(0xFFFF7722),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                     SizedBox(height: 8),
-                    Text("Please upload JPG / PNG under 2MB",
-                        style: TextStyle(fontSize: 12, color: Colors.grey)),
+                    Text(
+                      "Please upload JPG / PNG under 2MB",
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
                   ],
                 ),
               ),
@@ -64,42 +71,30 @@ class GalleryTab extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          // ---------------- SAVED IMAGES HEADER + DELETE BUTTON ----------------
-          Obx(() {
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Saved Images",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-
-                // Delete Selected Button
-                if (controller.selectedImages.isNotEmpty)
-                  GestureDetector(
-                    onTap: controller.deleteSelected,
-                    child: Container(
-                      padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        "Delete (${controller.selectedImages.length})",
-                        style: const TextStyle(
-                            color: Colors.white, fontSize: 12),
-                      ),
-                    ),
-                  ),
-              ],
-            );
-          }),
+          // SAVED IMAGES HEADER
+          Text(
+            "Saved Images",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
 
           const SizedBox(height: 12),
 
-          // ---------------- IMAGES GRID ----------------
+          // IMAGES GRID
           Obx(() {
+            print("imges data  =>>> ${controller.galleryImages.length}");
+            if (controller.galleryImages.isEmpty) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(40),
+                  child: Text(
+                    "No images yet.\nTap 'Upload Image' to add.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                ),
+              );
+            }
+
             return GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -107,39 +102,41 @@ class GalleryTab extends StatelessWidget {
                 crossAxisCount: 3,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
+                childAspectRatio: 1,
               ),
-              itemCount: controller.images.length,
+              itemCount: controller.galleryImages.length,
               itemBuilder: (ctx, i) {
-                final isSelected = controller.selectedImages.contains(i);
+                final imagePath = controller.galleryImages[i];
+                final isNetwork = imagePath.startsWith('http');
 
-                return GestureDetector(
-                  onTap: () => controller.selectImage(i),
-                  onLongPress: () => controller.selectImage(i),
+                final optimizedUrl = isNetwork
+                    ? ImageConverter.optimizeCloudinaryUrl(imagePath)
+                    : imagePath;
 
-                  child: Stack(
-                    children: [
-                      // IMAGE
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.file(
-                          File(controller.images[i]),
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                        ),
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: isNetwork
+                      ? CachedNetworkImage(
+                    imageUrl: optimizedUrl,
+                    fit: BoxFit.cover,
+                    placeholder: (_, __) => Container(
+                      color: Colors.grey.shade200,
+                      child: const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
                       ),
-
-                      // SELECTION OVERLAY
-                      if (isSelected)
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: Colors.black26,
-                            border: Border.all(
-                                color: Colors.orange, width: 2),
-                          ),
-                        ),
-                    ],
+                    ),
+                    errorWidget: (_, __, ___) => Container(
+                      color: Colors.grey.shade200,
+                      child: const Icon(Icons.broken_image),
+                    ),
+                  )
+                      : Image.file(
+                    File(imagePath),
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      color: Colors.grey.shade200,
+                      child: const Icon(Icons.error, color: Colors.red),
+                    ),
                   ),
                 );
               },

@@ -10,6 +10,7 @@ import '../../controllers/darshan_controller.dart';
 import '../../controllers/dashboard_cotroller.dart';
 import '../../models/live_darshan_model.dart';
 
+import '../../utils/imageconverter.dart';
 import 'live_darshan/Livedarshan.dart';
 import 'live_darshan/darshan_details.dart';
 import 'manage.dart';
@@ -17,15 +18,24 @@ import 'menupage.dart';
 import 'notification.dart';
 import 'overview.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
    DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
   // final DarshanController controller = Get.put((DarshanController()));
-   // inside class
    final TempleHomeController controller = Get.find<TempleHomeController>();
+
    final items = Get.find<DarshanController>().liveDarshans;
 
-
-
+   @override
+  void initState() {
+     controller.fetchHomeData();
+    super.initState();
+  }
    @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -156,21 +166,6 @@ class DashboardPage extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // SizedBox(
-            //   height: 210,
-            //   child: Obx(() {
-            //     final items = Get.find<DarshanController>().liveDarshans;
-            //
-            //
-            //     return ListView.separated(
-            //       scrollDirection: Axis.horizontal,
-            //       itemCount: items.length,
-            //       separatorBuilder: (_, __) => const SizedBox(width: 14),
-            //       itemBuilder: (_, i) => _liveDarshanCard(items[i]),
-            //     );
-            //   }
-            //   ),
-            // ),
             SizedBox(
               height: 210,
               child: Obx(() {
@@ -314,9 +309,6 @@ class DashboardPage extends StatelessWidget {
   }
 
   // ----------------------------------------------------
-  // ------------------- WIDGETS ------------------------
-  // ----------------------------------------------------
-
   Widget _statCard({
     required String title,
     required String value,
@@ -367,14 +359,13 @@ class DashboardPage extends StatelessWidget {
      String? img;
 
      if (darshan.mobile_image != null && darshan.mobile_image!.isNotEmpty) {
-       img = darshan.mobile_image!;
-     // } else if (darshan.webImage != null && darshan.webImage!.isNotEmpty) {
-     //   img = darshan.webImage!;
-     } else if (darshan.image != null && darshan.image!.isNotEmpty) {
-       img = darshan.image!;
+       img = ImageConverter.optimizeCloudinaryUrl(darshan.mobile_image!);
+     } else if (darshan.image.isNotEmpty) {
+       img = ImageConverter.optimizeCloudinaryUrl(darshan.image);
      } else {
        img = "https://picsum.photos/200";
      }
+
 
      return GestureDetector(
        onTap: () => Get.to(() => DarshanDetailPage(darshan: darshan)),
@@ -478,7 +469,7 @@ class DashboardPage extends StatelessWidget {
                borderRadius: BorderRadius.circular(12),
                child:
                CachedNetworkImage(
-                 imageUrl: home.image,
+                 imageUrl: ImageConverter.optimizeCloudinaryUrl(home.image),
                  height: 80,
                  width: 90,
                  fit: BoxFit.cover,
@@ -488,9 +479,10 @@ class DashboardPage extends StatelessWidget {
                    height: 80,
                    width: 90,
                    color: Colors.grey.shade300,
-                   child: const Icon(Icons.broken_image, color: Colors.grey),
+                   child: const Icon(Icons.broken_image),
                  ),
                ),
+
 
 
              ),
@@ -508,7 +500,6 @@ class DashboardPage extends StatelessWidget {
      }
      );
    }
-
 
    Widget _timeRow(String title, String time) {
     return Row(
@@ -531,6 +522,5 @@ class DashboardPage extends StatelessWidget {
      if (s == null || s.isEmpty) return "";
      return s[0].toUpperCase() + s.substring(1);
    }
-
 }
 

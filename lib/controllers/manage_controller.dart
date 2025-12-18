@@ -8,6 +8,7 @@ import '../models/location_model.dart';
 import '../models/social_media.dart';
 import '../models/timming_model.dart';
 import '../../controllers/dashboard_cotroller.dart';
+import '../screens/dashboard/overview.dart';
 import '../widgets/imageuploadwidget.dart';
 class ManageController extends GetxController {
   final activeTab = 0.obs;
@@ -34,6 +35,7 @@ class ManageController extends GetxController {
   final selectedIndex = (-1).obs;
 
   final galleryImages = <String>[].obs;
+  final additionalSections = <AdditionalSection>[].obs;
 
   @override
   void onInit() {
@@ -125,7 +127,14 @@ class ManageController extends GetxController {
       ),
     ]);
 
-    galleryImages.assignAll(home.gallery);
+    galleryImages.assignAll(home.galleryImages);
+    additionalSections.clear();
+    for (var item in home.additionalInfo) {
+      final section = AdditionalSection();
+      section.titleCtrl.text = item.title?.toString() ?? "";
+      section.contentCtrl.text = item.content?.toString() ?? "";
+      additionalSections.add(section);
+    }
   }
 
   // REQUIRED BY TIMING TAB

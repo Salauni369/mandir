@@ -17,6 +17,7 @@ class TempleHomeController extends GetxController {
   }
 
   Future<void> fetchHomeData() async {
+    print("Dashboard se donation items: ${homeData.value?.donation.length ?? 0}");
     try {
       loading(true);
 

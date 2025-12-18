@@ -14,5 +14,6 @@ class ApiConstants {
   // DASHBOARD / LIVE
   static const String dashboard = "$baseUrl/spiritual/temple";
   static const String liveDarshan = "$baseUrl/spiritual/live";
-  static const String donation = "$baseUrl/spiritual/temple";
+  static const String getdonation = "$baseUrl/spiritual/temple";
+  static const String postdonation = "$baseUrl/spiritual/donation";
 }

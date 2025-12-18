@@ -95,7 +95,7 @@ class DaanListPage extends StatelessWidget {
           );
         }
 
-        if (controller.list.isEmpty) {
+        if (controller.daanListData.isEmpty) {
           return const Center(
             child: Text(
               'No daan available',
@@ -108,10 +108,10 @@ class DaanListPage extends StatelessWidget {
           onRefresh: controller.fetchDonations, // ✅ CORRECT
           child: ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: controller.list.length,
+            itemCount: controller.daanListData.length,
             itemBuilder: (_, i) {
               return DaanCard(
-                daan: controller.list[i],
+                daan: controller.daanListData[i],
               );
             },
           ),

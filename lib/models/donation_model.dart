@@ -59,64 +59,170 @@
 //     );
 //   }
 // }
+//
+// class DaanModel {
+//   final String id;
+//   final String image;
+//   final String buttonText;
+//   final String buttonLink;
+//   final String donation_title;
+//
+//   DaanModel({
+//     required this.id,
+//     required this.image,
+//     required this.buttonText,
+//     required this.buttonLink,
+//     required this.donation_title,
+//   });
+//
+//   /// -------------------------
+//   /// FROM JSON
+//   /// -------------------------
+//   factory DaanModel.fromJson(Map<String, dynamic> json) {
+//     return DaanModel(
+//       id: json["_id"] ?? "",
+//       image: json["image"] ?? "",
+//       buttonText: json["button_text"] ?? "",
+//       buttonLink: json["button_link"] ?? "",
+//       donation_title: json["donation_title"] ?? "",
+//     );
+//   }
+//
+//   /// -------------------------
+//   /// TO JSON
+//   /// -------------------------
+//   Map<String, dynamic> toJson() {
+//     return {
+//       "image": image,
+//       "button_text": buttonText,
+//       "button_link": buttonLink,
+//       "description": donation_title,
+//     };
+//   }
+//
+//   /// -------------------------
+//   /// COPY WITH (🔥 FIX)
+//   /// -------------------------
+//   DaanModel copyWith({
+//     String? id,
+//     String? image,
+//     String? buttonText,
+//     String? buttonLink,
+//     String? donation_title,
+//   }) {
+//     return DaanModel(
+//       id: id ?? this.id,
+//       image: image ?? this.image,
+//       buttonText: buttonText ?? this.buttonText,
+//       buttonLink: buttonLink ?? this.buttonLink,
+//       donation_title: donation_title ?? this.donation_title,
+//     );
+//   }
+// }
+//
+//
+// class DaanModel {
+//   final String id;
+//   final String image;
+//   final String buttonText;
+//   final String buttonLink;
+//   final String donation_title;  // description ke jagah ye use kar rahe ho
+//
+//   DaanModel({
+//     required this.id,
+//     required this.image,
+//     required this.buttonText,
+//     required this.buttonLink,
+//     required this.donation_title,
+//   });
+// //    get vaale names
+//   factory DaanModel.fromJson(Map<String, dynamic> json) {
+//     return DaanModel(
+//       id: json["_id"] ?? "",
+//       image: json["image"] ?? "",
+//       buttonText: json["button_text"] ?? "",
+//       buttonLink: json["button_link"] ?? "",
+//       donation_title: json["description"] ?? "",  // API mein "description" hai
+//     );
+//   }
+//
+//   Map<String, dynamic> toJson() {
+//     return {
+//       "image": image,
+//       "button_text": buttonText,
+//       "button_link": buttonLink,
+//       "description": donation_title,
+//     };
+//   }
+//
+//   DaanModel copyWith({
+//     String? id,
+//     String? image,
+//     String? buttonText,
+//     String? buttonLink,
+//     String? donation_title,
+//   }) {
+//     return DaanModel(
+//       id: id ?? this.id,
+//       image: image ?? this.image,
+//       buttonText: buttonText ?? this.buttonText,
+//       buttonLink: buttonLink ?? this.buttonLink,
+//       donation_title: donation_title ?? this.donation_title,
+//     );
+//   }
+// }
 
+
+// ========================================
+// MODEL (donation_model.dart) - NO CHANGES NEEDED
+// ========================================
 class DaanModel {
   final String id;
   final String image;
   final String buttonText;
   final String buttonLink;
-  final String description;
+  final String donation_title;
 
   DaanModel({
     required this.id,
     required this.image,
     required this.buttonText,
     required this.buttonLink,
-    required this.description,
+    required this.donation_title,
   });
 
-  /// -------------------------
-  /// FROM JSON
-  /// -------------------------
   factory DaanModel.fromJson(Map<String, dynamic> json) {
     return DaanModel(
       id: json["_id"] ?? "",
-      image: json["image"] ?? "",
-      buttonText: json["button_text"] ?? "",
-      buttonLink: json["button_link"] ?? "",
-      description: json["description"] ?? "",
+      image: json["image"] ?? json["mobile_image"] ?? "",
+      buttonText: json["button_text"] ?? json["button_label"] ?? "",
+      buttonLink: json["button_link"] ?? json["button_url"] ?? "",
+      donation_title: json["description"] ?? json["donation_title"] ?? "",
     );
   }
 
-  /// -------------------------
-  /// TO JSON
-  /// -------------------------
   Map<String, dynamic> toJson() {
     return {
-      "image": image,
-      "button_text": buttonText,
-      "button_link": buttonLink,
-      "description": description,
+      "mobile_image": image,
+      "donation_title": donation_title,
+      "button_label": buttonText,
+      "button_url": buttonLink,
     };
   }
 
-  /// -------------------------
-  /// COPY WITH (🔥 FIX)
-  /// -------------------------
   DaanModel copyWith({
     String? id,
     String? image,
     String? buttonText,
     String? buttonLink,
-    String? description,
+    String? donation_title,
   }) {
     return DaanModel(
       id: id ?? this.id,
       image: image ?? this.image,
       buttonText: buttonText ?? this.buttonText,
       buttonLink: buttonLink ?? this.buttonLink,
-      description: description ?? this.description,
+      donation_title: donation_title ?? this.donation_title,
     );
   }
 }
-

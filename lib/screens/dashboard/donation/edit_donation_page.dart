@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../controllers/donation_controllers.dart';
 import '../../../models/donation_model.dart';
+import '../../../utils/imageconverter.dart';
 import '../../../widgets/app_colors.dart';
 import '../../../widgets/imgupfordaan.dart';
 import '../../../widgets/successdaan.dart';
@@ -29,17 +30,18 @@ class _EditDaanPageState extends State<EditDaanPage> {
   @override
   void initState() {
     super.initState();
-    titleCtrl = TextEditingController(text: widget.daan.description);
+    titleCtrl = TextEditingController(text: widget.daan.donation_title);
     buttonLabelCtrl = TextEditingController(text: widget.daan.buttonText);
     buttonUrlCtrl = TextEditingController(text: widget.daan.buttonLink);
-    imagePath = widget.daan.image;
+    imagePath = ImageConverter.optimizeCloudinaryUrl(widget.daan.image);
+
   }
 
   Future<void> _updateDaan() async {
     if (!formKey.currentState!.validate()) return;
 
     final updated = widget.daan.copyWith(
-      description: titleCtrl.text.trim(),
+      donation_title: titleCtrl.text.trim(),
       buttonText: buttonLabelCtrl.text.trim(),
       buttonLink: buttonUrlCtrl.text.trim(),
       image: imagePath,
