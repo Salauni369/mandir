@@ -228,16 +228,16 @@
 // }
 class DaanModel {
   final String id;
-  final String donation_title;
-  final String buttonText;
-  final String buttonLink;
+  final String description;
+  final String button_text;
+  final String button_link;
   final String image;
 
   DaanModel({
     required this.id,
-    required this.donation_title,
-    required this.buttonText,
-    required this.buttonLink,
+    required this.description,
+    required this.button_text,
+    required this.button_link,
     required this.image,
   });
 
@@ -246,9 +246,9 @@ class DaanModel {
   // =========================
   Map<String, dynamic> toJson() {
     return {
-      "donation_title": donation_title,
-      "button_label": buttonText,
-      "button_url": buttonLink,
+      "donation_title": description,
+      "button_label": button_text,
+      "button_url": button_link,
       "mobile_image": image,
     };
   }
@@ -259,10 +259,10 @@ class DaanModel {
   factory DaanModel.fromJson(Map<String, dynamic> json) {
     return DaanModel(
       id: json["_id"] ?? json["id"] ?? "",
-      donation_title: json["donation_title"] ?? "",
-      buttonText: json["button_label"] ?? json["buttonText"] ?? "",
-      buttonLink: json["button_url"] ?? json["buttonLink"] ?? "",
-      image: json["mobile_image"] ?? json["image"] ?? "",
+      description: json["description"] ?? "",
+      button_text: json["button_text"] ?? json["button_text"] ?? "",
+      button_link: json["button_link"] ?? json["button_link"] ?? "",
+      image: json["image"] ?? json["image"] ?? "",
     );
   }
 
@@ -278,16 +278,17 @@ class DaanModel {
   }) {
     return DaanModel(
       id: id ?? this.id,
-      donation_title: donation_title ?? this.donation_title,
-      buttonText: buttonText ?? this.buttonText,
-      buttonLink: buttonLink ?? this.buttonLink,
+
+            description: donation_title ?? this.description,
+      button_text: buttonText ?? this.button_text,
+      button_link: buttonLink ?? this.button_link,
       image: image ?? this.image,
     );
   }
 
   @override
   String toString() {
-    return 'DaanModel(id: $id, title: $donation_title, buttonText: $buttonText, buttonLink: $buttonLink, image: $image)';
+    return 'DaanModel(id: $id, title: $description, button_text: $button_text, button_link: $button_link, image: $image)';
   }
 
   @override
@@ -296,18 +297,18 @@ class DaanModel {
 
     return other is DaanModel &&
         other.id == id &&
-        other.donation_title == donation_title &&
-        other.buttonText == buttonText &&
-        other.buttonLink == buttonLink &&
+        other.description == description &&
+        other.button_text == button_text &&
+        other.button_link == button_link &&
         other.image == image;
   }
 
   @override
   int get hashCode {
     return id.hashCode ^
-    donation_title.hashCode ^
-    buttonText.hashCode ^
-    buttonLink.hashCode ^
+    description.hashCode ^
+    button_text.hashCode ^
+    button_link.hashCode ^
     image.hashCode;
   }
 }

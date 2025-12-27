@@ -198,9 +198,9 @@ class DaanController extends GetxController {
 
       final daan = DaanModel(
         id: '',
-        donation_title: title,
-        buttonText: buttonLabel,
-        buttonLink: buttonUrl,
+        description: title,
+        button_text: buttonLabel,
+        button_link: buttonUrl,
         image: imageUrl,
       );
 

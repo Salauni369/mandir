@@ -5,7 +5,7 @@ class ApiConstants {
   //https://api.gamsgroup.in
   //https://geri-euphuistic-unstridently.ngrok-free.dev
   //static const String baseUrl = "https://geri-euphuistic-unstridently.ngrok-free.dev";
-  static const String baseUrl= "https://api.gamsgroup.in";
+  static const String baseUrl= "https://dev-api.gamsgroup.in";
 
   // AUTH
   static const String sendOtp = "$baseUrl/spiritual/auth/send-otp";

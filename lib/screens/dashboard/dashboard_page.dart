@@ -216,13 +216,13 @@ class _DashboardPageState extends State<DashboardPage> {
             const SizedBox(height: 14),
             _overviewCard(),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 5),
 
             // ---------------- TIMINGS ----------------
             Container(
               width: double.infinity,
               margin: EdgeInsets.symmetric(horizontal: 0),     // Make it full-width
-              padding: EdgeInsets.all(12),
+              padding: EdgeInsets.all(11),
               decoration: BoxDecoration(
                 color: Color(0xFFFFF1E9),
                 borderRadius: BorderRadius.circular(6),
@@ -282,7 +282,7 @@ class _DashboardPageState extends State<DashboardPage> {
               if (home == null) return SizedBox();
               return Text(
                 home.about,
-                style: TextStyle(fontSize: 12, height: 1.4,color:  Color(0xFFADADAD)),
+                style: TextStyle(fontSize: 13, height: 1.4,color:  Colors.grey.shade600),
               );
             }),
 
@@ -347,92 +347,148 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+   // Widget _liveDarshanCard(DarshanModel darshan) {
+   //   // SAFE IMAGE PICKER
+   //   String? img;
+   //
+   //   if (darshan.mobile_image != null && darshan.mobile_image!.isNotEmpty) {
+   //     img = ImageConverter.optimizeCloudinaryUrl(darshan.mobile_image!);
+   //   } else if (darshan.image.isNotEmpty) {
+   //     img = ImageConverter.optimizeCloudinaryUrl(darshan.image);
+   //   } else {
+   //     img = "https://picsum.photos/200";
+   //   }
+   //
+   //
+   //   return GestureDetector(
+   //     onTap: () => Get.to(() => DarshanDetailPage(darshan: darshan)),
+   //     child: Column(
+   //       crossAxisAlignment: CrossAxisAlignment.start,
+   //       children: [
+   //         Container(
+   //           height: 160,
+   //           width: 160,
+   //           decoration: BoxDecoration(
+   //             color: Colors.grey.shade200,
+   //             borderRadius: BorderRadius.circular(20),
+   //           ),
+   //           child: Stack(
+   //             children: [
+   //               Positioned.fill(
+   //                 child: img!.startsWith("http")
+   //                     ? CachedNetworkImage(
+   //                   imageUrl: img!,
+   //                   fit: BoxFit.cover,
+   //                   placeholder: (_, __) =>
+   //                   const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+   //                   errorWidget: (_, __, ___) =>
+   //                   const Icon(Icons.broken_image),
+   //                 )
+   //                     : Image.file(
+   //                   File(img!),
+   //                   fit: BoxFit.cover,
+   //                 ),
+   //               ),
+   //
+   //
+   //               // ------------- LIVE BADGE (TOP RIGHT) -------------
+   //               if (darshan.isLive)
+   //                 Positioned(
+   //                   top: 6,
+   //                   right: 6,
+   //                   child: Container(
+   //                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+   //                     decoration: BoxDecoration(
+   //                       color: Colors.red,
+   //                       borderRadius: BorderRadius.circular(10),
+   //                     ),
+   //                     child: const Text(
+   //                       "LIVE",
+   //                       style: TextStyle(
+   //                         color: Colors.white,
+   //                         fontSize: 10,
+   //                         fontWeight: FontWeight.bold,
+   //                       ),
+   //                     ),
+   //                   ),
+   //                 ),
+   //             ],
+   //           ),
+   //         ),
+   //
+   //         const SizedBox(height: 6),
+   //         SizedBox(
+   //           width: 160,
+   //           child: Text(
+   //             darshan.title,
+   //             maxLines: 2,
+   //             overflow: TextOverflow.ellipsis,
+   //             style: const TextStyle(
+   //               fontSize: 12,
+   //               color: Colors.black,
+   //             ),
+   //           ),
+   //         ),
+   //       ],
+   //     ),
+   //   );
+   // }
    Widget _liveDarshanCard(DarshanModel darshan) {
-     // SAFE IMAGE PICKER
-     String? img;
+     String img;
 
      if (darshan.mobile_image != null && darshan.mobile_image!.isNotEmpty) {
        img = ImageConverter.optimizeCloudinaryUrl(darshan.mobile_image!);
-     } else if (darshan.image.isNotEmpty) {
-       img = ImageConverter.optimizeCloudinaryUrl(darshan.image);
      } else {
-       img = "https://picsum.photos/200";
+       img = "https://picsum.photos/300";
      }
-
 
      return GestureDetector(
        onTap: () => Get.to(() => DarshanDetailPage(darshan: darshan)),
-       child: Column(
-         crossAxisAlignment: CrossAxisAlignment.start,
-         children: [
-           Container(
-             height: 160,
-             width: 160,
-             decoration: BoxDecoration(
-               color: Colors.grey.shade200,
-               borderRadius: BorderRadius.circular(8),
-             ),
-             child: Stack(
-               children: [
-                 Positioned.fill(
-                   child: img!.startsWith("http")
-                       ? CachedNetworkImage(
-                     imageUrl: img!,
-                     fit: BoxFit.cover,
-                     placeholder: (_, __) =>
-                     const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                     errorWidget: (_, __, ___) =>
-                     const Icon(Icons.broken_image),
-                   )
-                       : Image.file(
-                     File(img!),
-                     fit: BoxFit.cover,
+       child: Container(
+         width: 150,
+         height: 155,
+         child: Column(
+           crossAxisAlignment: CrossAxisAlignment.start,
+           children: [
+             // 🔥 IMAGE — FULLY ROUNDED (TOP + BOTTOM)
+             ClipRRect(
+               borderRadius: BorderRadius.circular(6),
+               child: SizedBox(
+                 height: 150,
+                 width: double.infinity,
+                 child: CachedNetworkImage(
+                   imageUrl: img,
+                   fit: BoxFit.cover,
+                   placeholder: (_, __) => const Center(
+                     child: CircularProgressIndicator(strokeWidth: 2),
                    ),
+                   errorWidget: (_, __, ___) =>
+                   const Icon(Icons.broken_image),
                  ),
-
-
-                 // ------------- LIVE BADGE (TOP RIGHT) -------------
-                 if (darshan.isLive)
-                   Positioned(
-                     top: 6,
-                     right: 6,
-                     child: Container(
-                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                       decoration: BoxDecoration(
-                         color: Colors.red,
-                         borderRadius: BorderRadius.circular(10),
-                       ),
-                       child: const Text(
-                         "LIVE",
-                         style: TextStyle(
-                           color: Colors.white,
-                           fontSize: 10,
-                           fontWeight: FontWeight.bold,
-                         ),
-                       ),
-                     ),
-                   ),
-               ],
+               ),
              ),
-           ),
 
-           const SizedBox(height: 6),
-           SizedBox(
-             width: 160,
-             child: Text(
+             const SizedBox(height: 8),
+
+             // 🔥 TEXT — SEPARATE, NO ROUNDING
+             Text(
                darshan.title,
                maxLines: 2,
                overflow: TextOverflow.ellipsis,
                style: const TextStyle(
                  fontSize: 12,
+                 fontWeight: FontWeight.normal,
                  color: Colors.black,
                ),
              ),
-           ),
-         ],
+           ],
+         ),
        ),
      );
    }
+
+
+
 
    Widget _overviewCard() {
      return Obx(() {
@@ -459,12 +515,12 @@ class _DashboardPageState extends State<DashboardPage> {
          child: Row(
            children: [
              ClipRRect(
-               borderRadius: BorderRadius.circular(12),
+               borderRadius: BorderRadius.circular(4),
                child:
                CachedNetworkImage(
                  imageUrl: ImageConverter.optimizeCloudinaryUrl(home.image),
                  height: 80,
-                 width: 90,
+                 width: 80,
                  fit: BoxFit.cover,
                  placeholder: (_, __) =>
                  const Center(child: CircularProgressIndicator(strokeWidth: 2)),
@@ -482,11 +538,36 @@ class _DashboardPageState extends State<DashboardPage> {
 
              const SizedBox(width: 14),
              Expanded(
-               child: Text(
-                 "${home.name}\n${home.location['city']}, ${home.location['state']}, ${home.location['country']}",
-                 style: TextStyle(fontSize: 13, height: 1.4),
+               child: RichText(
+                 text: TextSpan(
+                   children: [
+                     // 🔥 TEMPLE NAME
+                     TextSpan(
+                       text: "${home.name}\n",
+                       style: const TextStyle(
+                         fontSize: 14,
+                         fontWeight: FontWeight.w700,
+                         color: Colors.black,
+                         height: 1.3,
+                       ),
+                     ),
+
+                     // 📍 LOCATION
+                     TextSpan(
+                       text:
+                       "${home.location['city']}, ${home.location['state']}, ${home.location['country']}",
+                       style: TextStyle(
+                         fontSize: 12,
+                         fontWeight: FontWeight.w500,
+                         color: Colors.grey.shade600,
+                         height: 1.5,
+                       ),
+                     ),
+                   ],
+                 ),
                ),
-             )
+             ),
+
            ],
          ),
        );
@@ -498,11 +579,11 @@ class _DashboardPageState extends State<DashboardPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: const TextStyle(fontSize: 14)),
+        Text(title, style: const TextStyle(fontSize: 12)),
         Text(
           time,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
         ),

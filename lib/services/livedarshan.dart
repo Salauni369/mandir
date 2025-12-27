@@ -109,18 +109,67 @@ class DarshanService {
     }
   }
 
-  // =========================
-  // UPDATE LIVE DARSHAN
-  // =========================
+  // // =========================
+  // // UPDATE LIVE DARSHAN
+  // // =========================
+  // static Future<Map<String, dynamic>> updateDarshanMultipart({
+  //   required String id,
+  //   required String title,
+  //   required String embeddedLink,
+  //   required String imagePath, // LOCAL FILE PATH ONLY
+  //   required String status,
+  //
+  //   String ? imagePath,
+  //   String ? imageUrl
+  // }) async {
+  //   final uri = Uri.parse("${ApiConstants.liveDarshan}/$id");
+  //   final request = http.MultipartRequest("PUT", uri);
+  //
+  //   request.headers.addAll(ApiHeaders.headers());
+  //
+  //   request.fields["_id"] = id;
+  //   request.fields["title"] = title;
+  //   request.fields["embeddedLink"] = embeddedLink;
+  //
+  //   request.fields["status"] = status;
+  //
+  //   request.files.add(
+  //     await http.MultipartFile.fromPath(
+  //       "mobile_image",
+  //       imagePath,
+  //       contentType: MediaType('image', 'jpeg'),
+  //     ),
+  //   );
+  //
+  //   try {
+  //     print("🚀 UPDATE DARSHAN REQUEST");
+  //     final streamedResponse = await request.send();
+  //     final response = await http.Response.fromStream(streamedResponse);
+  //
+  //     print("STATUS: ${response.statusCode}");
+  //     print("BODY: ${response.body}");
+  //
+  //     return jsonDecode(response.body);
+  //   } catch (e) {
+  //     print("❌ UPDATE ERROR: $e");
+  //     return {
+  //       "success": false,
+  //       "message": "Network error: $e",
+  //     };
+  //   }
+  // }
+
   static Future<Map<String, dynamic>> updateDarshanMultipart({
     required String id,
     required String title,
     required String embeddedLink,
-    required String imagePath, // LOCAL FILE PATH ONLY
     required String status,
+
+    String? imagePath, // LOCAL FILE (optional)
+    String? imageUrl,  // CLOUDINARY URL (optional)
   }) async {
     final uri = Uri.parse("${ApiConstants.liveDarshan}/$id");
-    final request = http.MultipartRequest("PUT", uri);
+    final request = http.MultipartRequest("POST", uri);
 
     request.headers.addAll(ApiHeaders.headers());
 
@@ -129,18 +178,28 @@ class DarshanService {
     request.fields["embeddedLink"] = embeddedLink;
     request.fields["status"] = status;
 
-    request.files.add(
-      await http.MultipartFile.fromPath(
-        "mobile_image",
-        imagePath,
-        contentType: MediaType('image', 'jpeg'),
-      ),
-    );
+    // ---- IMAGE HANDLING ----
+    if (imagePath != null && imagePath.isNotEmpty) {
+      // Case 1: User picked new image
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          "mobile_image",
+          imagePath,
+        ),
+      );
+      print("📤 IMAGE FILE SENT");
+    } else if (imageUrl != null && imageUrl.isNotEmpty) {
+      // Case 2: Image unchanged
+      request.fields["mobile_image"] = imageUrl;
+      print("📤 IMAGE URL SENT");
+    } else {
+      throw Exception("Image is required");
+    }
 
     try {
       print("🚀 UPDATE DARSHAN REQUEST");
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
+      final streamed = await request.send();
+      final response = await http.Response.fromStream(streamed);
 
       print("STATUS: ${response.statusCode}");
       print("BODY: ${response.body}");
@@ -150,8 +209,9 @@ class DarshanService {
       print("❌ UPDATE ERROR: $e");
       return {
         "success": false,
-        "message": "Network error: $e",
+        "message": e.toString(),
       };
     }
   }
+
 }

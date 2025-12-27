@@ -43,8 +43,7 @@ class _MyAppState extends State<MyApp> {
     return GetMaterialApp(
       initialBinding: AppBinding(),
       debugShowCheckedModeBanner: false,
-
-      title: "SING IN",
+      title: "Zamboore_devotion",
       theme: ThemeData(
         fontFamily: "Poppins"
       ),

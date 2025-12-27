@@ -103,9 +103,9 @@ class DarshanMainPage extends StatelessWidget {
                 gridDelegate:
                 SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
-                  childAspectRatio: 0.72,
+                  mainAxisSpacing: 2,
+                  crossAxisSpacing: 6,
+                  childAspectRatio: 0.78,
                 ),
                 itemBuilder: (_, i) {
                   final darshan = live[i];

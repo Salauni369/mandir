@@ -33,6 +33,7 @@ class DarshanModel {
     String? liveLink,
     String? mobile_image,
     String? status,
+    //String? image,
   }) {
     return DarshanModel(
       id: id,
