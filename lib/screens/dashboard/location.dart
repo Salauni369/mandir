@@ -3,86 +3,63 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:zamboree_devotion/address/models/get_address_model.dart';
-import 'package:zamboree_devotion/location/models/location_suggestion.dart';
+import '../../controllers/manage_controller.dart';
 import '../../address/controller/select_location_controller.dart';
 import '../../address/view/widgets/location_search_bottom_sheet.dart';
 import '../../location/services/places_api_service.dart';
 
 class LocationPage extends StatefulWidget {
-  final AddressData? addressData;
-  final String? type;
-  const LocationPage({super.key, this.addressData, this.type});
+  const LocationPage({super.key});
 
   @override
   State<LocationPage> createState() => _LocationPageState();
 }
 
 class _LocationPageState extends State<LocationPage> {
-  final controller = Get.find<SelectLocationController>();
+  final manageController = Get.find<ManageController>();
+  final locationController = Get.find<SelectLocationController>();
   final PlacesApiService _placesService = PlacesApiService();
-  final TextEditingController _searchController = TextEditingController();
-  Timer? _debounceTimer;
-
-  final _suggestions = <LocationSuggestion>[].obs;
-  final _isLoading = false.obs;
 
   @override
   void initState() {
     super.initState();
-    _currentLocation();
-    _searchController.addListener(_onSearchChanged);
+    _initializeLocation();
   }
 
-  _currentLocation() async {
-    await controller.initCurrentLocation();
-    if (controller.mapController != null) {
-      await controller.mapController!.animateCamera(
+  Future<void> _initializeLocation() async {
+    // Check if location already saved
+    if (manageController.savedLat.value == 0.0) {
+      // No saved location, get current
+      await locationController.initCurrentLocation();
+    } else {
+      // Use saved location
+      final savedLatLng = LatLng(
+        manageController.savedLat.value,
+        manageController.savedLng.value,
+      );
+      locationController.currentLatLng.value = savedLatLng;
+
+      if (locationController.mapController != null) {
+        await locationController.mapController!.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(target: savedLatLng, zoom: 17),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _currentLocation() async {
+    await locationController.initCurrentLocation();
+    if (locationController.mapController != null) {
+      await locationController.mapController!.animateCamera(
         CameraUpdate.newCameraPosition(
           CameraPosition(
-            target: controller.currentLatLng.value,
+            target: locationController.currentLatLng.value,
             zoom: 17,
           ),
         ),
       );
-    }
-  }
-
-  @override
-  void dispose() {
-    _debounceTimer?.cancel();
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  void _onSearchChanged() {
-    final query = _searchController.text.trim();
-    if (query.isEmpty) {
-      _suggestions.clear();
-      return;
-    }
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 400), () {
-      _fetchSuggestions(query);
-    });
-  }
-
-  Future<void> _fetchSuggestions(String query) async {
-    if (query.isEmpty) return;
-    _isLoading.value = true;
-    try {
-      final results = await _placesService.getAutocompleteSuggestions(
-        input: query,
-        latitude: controller.currentLatLng.value.latitude,
-        longitude: controller.currentLatLng.value.longitude,
-        radius: 50000,
-        components: 'country:in',
-      );
-      _suggestions.assignAll(results);
-    } catch (e) {
-      _suggestions.clear();
-    } finally {
-      _isLoading.value = false;
     }
   }
 
@@ -97,26 +74,22 @@ class _LocationPageState extends State<LocationPage> {
 
   @override
   Widget build(BuildContext context) {
-    print("ler.locationAddress.value");
-    print(controller.locationAddress.value);
     return Scaffold(
-      // appBar: AppBar(title:Text( "Select Your Location")),
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // 🗺️ Google Map
+          // 🗺️ MAP
           Obx(() => GoogleMap(
             initialCameraPosition: CameraPosition(
-              target: controller.currentLatLng.value,
+              target: locationController.currentLatLng.value,
               zoom: 17,
             ),
-            onMapCreated: controller.onMapCreated,
+            onMapCreated: locationController.onMapCreated,
             myLocationEnabled: true,
             myLocationButtonEnabled: false,
-            onCameraMove: controller.onCameraMove,
-            onCameraIdle: controller.onCameraIdle,
-
-            // 🔵 Added 80m light blue radius circle
-            circles: controller.circleList.map((circleData) {
+            onCameraMove: locationController.onCameraMove,
+            onCameraIdle: locationController.onCameraIdle,
+            circles: locationController.circleList.map((circleData) {
               return Circle(
                 circleId: CircleId(circleData['id'].toString()),
                 center: circleData['center'] as LatLng,
@@ -128,7 +101,7 @@ class _LocationPageState extends State<LocationPage> {
             }).toSet(),
           )),
 
-          // 🔍 Search Bar (grey border, black text)
+          // 🔍 SEARCH BAR
           Positioned(
             top: 12,
             left: 12,
@@ -140,7 +113,7 @@ class _LocationPageState extends State<LocationPage> {
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                 decoration: BoxDecoration(
                   color: Colors.white.withAlpha(200),
-                  border: Border.all(color: Colors.grey.shade300, width: 1),
+                  border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -160,19 +133,14 @@ class _LocationPageState extends State<LocationPage> {
             ),
           ),
 
-          // 📍 Pin marker (custom image + bottom circle)
+          // 📍 PIN MARKER
           Center(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 41.8, left: 0.5),
               child: Stack(
                 alignment: Alignment.topCenter,
                 children: [
-                  // Image.asset(
-                  //   AllImages.pin,
-                  //   width: 70,
-                  //   height: 70,
-                  // ),
-                  Icon(Icons.location_on, color: Colors.blue,),
+                  const Icon(Icons.location_on, color: Colors.blue, size: 50),
                   Positioned(
                     bottom: 6,
                     child: Container(
@@ -180,11 +148,7 @@ class _LocationPageState extends State<LocationPage> {
                       height: 16,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          width: 2,
-                          color: Colors.black87,
-                        ),
-                        color: Colors.transparent,
+                        border: Border.all(width: 2, color: Colors.black87),
                       ),
                     ),
                   ),
@@ -193,7 +157,7 @@ class _LocationPageState extends State<LocationPage> {
             ),
           ),
 
-          // 📍 Current Location Button
+          // 🎯 CURRENT LOCATION BUTTON
           Positioned(
             bottom: 240,
             right: 8,
@@ -207,13 +171,13 @@ class _LocationPageState extends State<LocationPage> {
                     colors: [Color(0xFF74ABE2), Color(0xFF5563DE)],
                   ),
                 ),
-                child:
-                const Icon(Icons.my_location, color: Colors.white, size: 22),
+                child: const Icon(Icons.my_location,
+                    color: Colors.white, size: 22),
               ),
             ),
           ),
 
-          // 🏠 Bottom Address Container
+          // 📋 BOTTOM SHEET
           Obx(() => Positioned(
             bottom: 0,
             left: 0,
@@ -241,80 +205,69 @@ class _LocationPageState extends State<LocationPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        controller.locationTitle.value,
+                        locationController.locationTitle.value,
                         style: GoogleFonts.roboto(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        controller.locationAddress.value,
-                        style: GoogleFonts.roboto(
-                          fontSize: 14,
-                          color: Colors.grey[700],
-                        ),
+                        locationController.locationAddress.value,
+                        style: GoogleFonts.roboto(fontSize: 14),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 20),
 
-                      // ✅ Confirm button (grey border, black text)
+                      // ✅ CONFIRM LOCATION BUTTON
                       InkWell(
                         onTap: () async {
-                          final details = await controller
-                              .getAddressParts(
-                              controller.currentLatLng.value);
-                          // Get.to(
-                          //       () => AddAddressDetailsScreen(
-                          //     selectedLatLng:
-                          //     controller.currentLatLng.value,
-                          //     selectedAddress:
-                          //     controller.locationAddress.value,
-                          //     selectedTitle:
-                          //     controller.locationTitle.value,
-                          //     addressData: widget.addressData,
-                          //     pageType: widget.type ?? "",
-                          //     country: details['country'] ?? '',
-                          //     state: details['state'] ?? '',
-                          //     city: details['city'] ?? '',
-                          //     zipCode: details['postal_code'] ?? '',
-                          //   ),
-                          //   transition: Transition.rightToLeft,
-                          // );
+                          await locationController.confirmLocationAndSave();
+
+                          // Reload in manage controller
+                          manageController.loadSavedLocation();
+
+                          Get.snackbar(
+                            "Success ✅",
+                            "Location confirmed! Now tap 'Update' button to save to server.",
+                            backgroundColor: Colors.green.shade600,
+                            colorText: Colors.white,
+                            snackPosition: SnackPosition.BOTTOM,
+                            margin: const EdgeInsets.all(16),
+                            duration: const Duration(seconds: 3),
+                            icon: const Icon(Icons.check_circle,
+                                color: Colors.white),
+                          );
                         },
                         child: Container(
                           width: double.infinity,
                           alignment: Alignment.center,
-                          padding:
-                          const EdgeInsets.symmetric(vertical: 14),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                           decoration: BoxDecoration(
-                            border: Border.all(
-                                color: Colors.grey.shade400, width: 1),
+                            color: const Color(0xFFFF7722),
                             borderRadius: BorderRadius.circular(12),
-                            color: Colors.grey.shade100,
                           ),
                           child: Text(
                             'Confirm Location',
                             style: GoogleFonts.roboto(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Colors.white,
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(height: 14),
-                      Obx(() => Center(
+                      Center(
                         child: Text(
-                          controller.locationDistance.value,
+                          locationController.locationDistance.value,
                           style: GoogleFonts.roboto(
                             fontSize: 13,
                             color: Colors.pink[600],
                           ),
                         ),
-                      )),
+                      ),
                     ],
                   ),
                 ),
@@ -325,25 +278,4 @@ class _LocationPageState extends State<LocationPage> {
       ),
     );
   }
-}
-
-class TrianglePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..shader = const LinearGradient(
-        colors: [Color(0xFFFD6E6A), Color(0xFFFFB88C)],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
-      ..style = PaintingStyle.fill;
-
-    final path = Path()
-      ..moveTo(size.width / 2, size.height)
-      ..lineTo(0, 0)
-      ..lineTo(size.width, 0)
-      ..close();
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

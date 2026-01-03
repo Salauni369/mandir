@@ -1,217 +1,212 @@
 // import 'dart:convert';
-// import 'dart:io';
 // import 'package:http/http.dart' as http;
-// import 'package:http_parser/http_parser.dart';
+//
+// import '../models/live_darshan_model.dart';
 // import '../utils/api_header.dart';
 // import '../utils/apiconstants.dart';
 //
 // class DarshanService {
-//   static Future<Map<String, dynamic>> createDarshanMultipart({
-//     required String title,
-//     required String embeddedLink,
-//     required String imagePath,
-//     required String status,
-//   }) async {
-//     final uri = Uri.parse(ApiConstants.liveDarshan);
-//     final request = http.MultipartRequest("POST", uri);
-//     request.headers.addAll(ApiHeaders.headers());
-//     request.fields["title"] = title;
-//     request.fields["embeddedLink"] = embeddedLink;
 //
-//     request.fields["status"] = status;
-//     request.files.add(
-//       await http.MultipartFile.fromPath(
-//         "mobile_image",
-//         imagePath,
-//         contentType: MediaType('image', 'jpeg'),
-//       ),
+//   // =========================
+//   // GET ALL DARSHANS
+//   // =========================
+//   static Future<List<DarshanModel>> getAll() async {
+//     final uri = Uri.parse(ApiConstants.liveDarshan);
+//
+//     final response = await http.get(
+//       uri,
+//       headers: ApiHeaders.headers(),
 //     );
 //
-//     try {
-//       print("🚀 Sending multipart request...");
-//       final streamedResponse = await request.send();
-//       final response = await http.Response.fromStream(streamedResponse);
-//
-//       print("Status Code: ${response.statusCode}");
-//       print("Response Body: ${response.body}");
-//
-//       if (response.statusCode == 200 || response.statusCode == 201) {
-//         return jsonDecode(response.body);
-//       } else {
-//         return jsonDecode(response.body);
-//       }
-//     } catch (e) {
-//       print("❌ Exception during upload: $e");
-//       return {
-//         "success": false,
-//         "message": "Network error: $e",
-//       };
-//
-//
+//     if (response.statusCode != 200) {
+//       final decoded = jsonDecode(response.body);
+//       throw Exception(decoded["message"] ?? "Failed to fetch darshans");
 //     }
 //
+//     final decoded = jsonDecode(response.body);
+//     final List list = decoded["data"]["darshans"] ?? [];
+//
+//     return list.map((e) => DarshanModel.fromJson(e)).toList();
 //   }
 //
+//   // =========================
+//   // ADD DARSHAN (URL ONLY)
+//   // =========================
+//   static Future<DarshanModel> add(DarshanModel darshan) async {
+//     final uri = Uri.parse(ApiConstants.liveDarshan);
+//
+//     final body = jsonEncode(darshan.toJson());
+//
+//     final response = await http.post(
+//       uri,
+//       headers: ApiHeaders.headers(),
+//       body: body,
+//     );
+//
+//     if (response.statusCode != 200 && response.statusCode != 201) {
+//       final decoded = jsonDecode(response.body);
+//       throw Exception(decoded["message"] ?? "Failed to add darshan");
+//     }
+//
+//     final decoded = jsonDecode(response.body);
+//     return DarshanModel.fromJson(
+//       decoded["data"]["darshan"] ?? decoded["data"],
+//     );
+//   }
+//
+//   // =========================
+//   // UPDATE DARSHAN (URL ONLY)
+//   // =========================
+//   static Future<DarshanModel> update(String id, DarshanModel darshan) async {
+//     final uri = Uri.parse("${ApiConstants.liveDarshan}/$id");
+//
+//     final body = jsonEncode(darshan.toJson());
+//
+//     final response = await http.put(
+//       uri,
+//       headers: ApiHeaders.headers(),
+//       body: body,
+//     );
+//
+//     if (response.statusCode != 200) {
+//       final decoded = jsonDecode(response.body);
+//       throw Exception(decoded["message"] ?? "Failed to update darshan");
+//     }
+//
+//     final decoded = jsonDecode(response.body);
+//     return DarshanModel.fromJson(
+//       decoded["data"]["darshan"] ?? decoded["data"],
+//     );
+//   }
+//
+//   // =========================
+//   // DELETE DARSHAN
+//   // =========================
+//   static Future<bool> delete(String id) async {
+//     final uri = Uri.parse("${ApiConstants.liveDarshan}/$id");
+//
+//     final response = await http.delete(
+//       uri,
+//       headers: ApiHeaders.headers(),
+//     );
+//
+//     return response.statusCode == 200 || response.statusCode == 204;
+//   }
 // }
 
+
 import 'dart:convert';
-import 'dart:io';
-
+import 'dart:developer'; // 👈 for logging
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 
+import '../models/live_darshan_model.dart';
 import '../utils/api_header.dart';
 import '../utils/apiconstants.dart';
 
 class DarshanService {
 
   // =========================
-  // CREATE LIVE DARSHAN
+  // GET ALL DARSHANS
   // =========================
-  static Future<Map<String, dynamic>> createDarshanMultipart({
-    required String title,
-    required String embeddedLink,
-    required String imagePath, // LOCAL FILE PATH
-    required String status,
-  }) async {
+  static Future<List<DarshanModel>> getAll() async {
     final uri = Uri.parse(ApiConstants.liveDarshan);
-    final request = http.MultipartRequest("POST", uri);
+    log("Fetching all darshans from $uri");
 
-    request.headers.addAll(ApiHeaders.headers());
-
-    request.fields["title"] = title;
-    request.fields["embeddedLink"] = embeddedLink;
-    request.fields["status"] = status;
-
-    request.files.add(
-      await http.MultipartFile.fromPath(
-        "mobile_image",
-        imagePath,
-        contentType: MediaType('image', 'jpeg'),
-      ),
+    final response = await http.get(
+      uri,
+      headers: ApiHeaders.headers(),
     );
 
-    try {
-      print("🚀 CREATE DARSHAN REQUEST");
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
+    log("Response status (getAll): ${response.statusCode}");
 
-      print("STATUS: ${response.statusCode}");
-      print("BODY: ${response.body}");
-
-      return jsonDecode(response.body);
-    } catch (e) {
-      print("❌ CREATE ERROR: $e");
-      return {
-        "success": false,
-        "message": "Network error: $e",
-      };
+    if (response.statusCode != 200) {
+      final decoded = jsonDecode(response.body);
+      log("Error fetching darshans: ${decoded["message"]}");
+      throw Exception(decoded["message"] ?? "Failed to fetch darshans");
     }
+
+    final decoded = jsonDecode(response.body);
+    final List list = decoded["data"]["darshans"] ?? [];
+
+    log("Fetched ${list.length} darshans successfully");
+    return list.map((e) => DarshanModel.fromJson(e)).toList();
   }
 
-  // // =========================
-  // // UPDATE LIVE DARSHAN
-  // // =========================
-  // static Future<Map<String, dynamic>> updateDarshanMultipart({
-  //   required String id,
-  //   required String title,
-  //   required String embeddedLink,
-  //   required String imagePath, // LOCAL FILE PATH ONLY
-  //   required String status,
-  //
-  //   String ? imagePath,
-  //   String ? imageUrl
-  // }) async {
-  //   final uri = Uri.parse("${ApiConstants.liveDarshan}/$id");
-  //   final request = http.MultipartRequest("PUT", uri);
-  //
-  //   request.headers.addAll(ApiHeaders.headers());
-  //
-  //   request.fields["_id"] = id;
-  //   request.fields["title"] = title;
-  //   request.fields["embeddedLink"] = embeddedLink;
-  //
-  //   request.fields["status"] = status;
-  //
-  //   request.files.add(
-  //     await http.MultipartFile.fromPath(
-  //       "mobile_image",
-  //       imagePath,
-  //       contentType: MediaType('image', 'jpeg'),
-  //     ),
-  //   );
-  //
-  //   try {
-  //     print("🚀 UPDATE DARSHAN REQUEST");
-  //     final streamedResponse = await request.send();
-  //     final response = await http.Response.fromStream(streamedResponse);
-  //
-  //     print("STATUS: ${response.statusCode}");
-  //     print("BODY: ${response.body}");
-  //
-  //     return jsonDecode(response.body);
-  //   } catch (e) {
-  //     print("❌ UPDATE ERROR: $e");
-  //     return {
-  //       "success": false,
-  //       "message": "Network error: $e",
-  //     };
-  //   }
-  // }
+  // =========================
+  // ADD DARSHAN (URL ONLY)
+  // =========================
+  static Future<DarshanModel> add(DarshanModel darshan) async {
+    final uri = Uri.parse(ApiConstants.liveDarshan);
+    log("Adding new darshan: ${darshan.toJson()}");
 
-  static Future<Map<String, dynamic>> updateDarshanMultipart({
-    required String id,
-    required String title,
-    required String embeddedLink,
-    required String status,
+    final body = jsonEncode(darshan.toJson());
 
-    String? imagePath, // LOCAL FILE (optional)
-    String? imageUrl,  // CLOUDINARY URL (optional)
-  }) async {
+    final response = await http.post(
+      uri,
+      headers: ApiHeaders.headers(),
+      body: body,
+    );
+
+    log("Response status (add): ${response.statusCode}");
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      final decoded = jsonDecode(response.body);
+      log("Error adding darshan: ${decoded["message"]}");
+      throw Exception(decoded["message"] ?? "Failed to add darshan");
+    }
+
+    final decoded = jsonDecode(response.body);
+    log("Darshan added successfully");
+    return DarshanModel.fromJson(
+      decoded["data"]["darshan"] ?? decoded["data"],
+    );
+  }
+
+  // =========================
+  // UPDATE DARSHAN (URL ONLY)
+  // =========================
+  static Future<DarshanModel> update(String id, DarshanModel darshan) async {
     final uri = Uri.parse("${ApiConstants.liveDarshan}/$id");
-    final request = http.MultipartRequest("POST", uri);
+    log("Updating darshan with id=$id, data=${darshan.toJson()}");
 
-    request.headers.addAll(ApiHeaders.headers());
+    final body = jsonEncode(darshan.toJson());
 
-    request.fields["_id"] = id;
-    request.fields["title"] = title;
-    request.fields["embeddedLink"] = embeddedLink;
-    request.fields["status"] = status;
+    final response = await http.put(
+      uri,
+      headers: ApiHeaders.headers(),
+      body: body,
+    );
 
-    // ---- IMAGE HANDLING ----
-    if (imagePath != null && imagePath.isNotEmpty) {
-      // Case 1: User picked new image
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          "mobile_image",
-          imagePath,
-        ),
-      );
-      print("📤 IMAGE FILE SENT");
-    } else if (imageUrl != null && imageUrl.isNotEmpty) {
-      // Case 2: Image unchanged
-      request.fields["mobile_image"] = imageUrl;
-      print("📤 IMAGE URL SENT");
-    } else {
-      throw Exception("Image is required");
+    log("Response status (update): ${response.statusCode}");
+
+    if (response.statusCode != 200) {
+      final decoded = jsonDecode(response.body);
+      log("Error updating darshan: ${decoded["message"]}");
+      throw Exception(decoded["message"] ?? "Failed to update darshan");
     }
 
-    try {
-      print("🚀 UPDATE DARSHAN REQUEST");
-      final streamed = await request.send();
-      final response = await http.Response.fromStream(streamed);
-
-      print("STATUS: ${response.statusCode}");
-      print("BODY: ${response.body}");
-
-      return jsonDecode(response.body);
-    } catch (e) {
-      print("❌ UPDATE ERROR: $e");
-      return {
-        "success": false,
-        "message": e.toString(),
-      };
-    }
+    final decoded = jsonDecode(response.body);
+    log("Darshan updated successfully for id=$id");
+    return DarshanModel.fromJson(
+      decoded["data"]["darshan"] ?? decoded["data"],
+    );
   }
 
+  // =========================
+  // DELETE DARSHAN
+  // =========================
+  static Future<bool> delete(String id) async {
+    final uri = Uri.parse("${ApiConstants.liveDarshan}/$id");
+    log("Deleting darshan with id=$id");
+
+    final response = await http.delete(
+      uri,
+      headers: ApiHeaders.headers(),
+    );
+
+    log("Response status (delete): ${response.statusCode}");
+    final success = response.statusCode == 200 || response.statusCode == 204;
+    log(success ? "Darshan deleted successfully" : "Failed to delete darshan");
+    return success;
+  }
 }

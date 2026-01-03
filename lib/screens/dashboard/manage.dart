@@ -184,6 +184,7 @@ import 'social_media.dart';
 import 'galary.dart';
 
 class ManageMainPage extends StatefulWidget {
+
   const ManageMainPage({super.key});
 
   @override
@@ -218,8 +219,7 @@ class _ManageMainPageState extends State<ManageMainPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
-      // ================= APP BAR =================
+      // top bar
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(110),
         child: Container(
@@ -244,7 +244,7 @@ class _ManageMainPageState extends State<ManageMainPage>
               ),
             ),
 
-            // ================= UPDATE BUTTON =================
+            // update button
             actions: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -266,7 +266,7 @@ class _ManageMainPageState extends State<ManageMainPage>
                           break;
 
                         case 1:
-                         // controller.saveLocation(); // Location
+                          controller.saveLocation(); // Location
                           break;
 
                         case 2:
@@ -308,8 +308,7 @@ class _ManageMainPageState extends State<ManageMainPage>
                 ),
               ),
             ],
-
-            // ================= TABS =================
+                // tab bar
             bottom: TabBar(
               controller: _tabController,
               isScrollable: true,
@@ -329,8 +328,9 @@ class _ManageMainPageState extends State<ManageMainPage>
         ),
       ),
 
-      // ================= BODY (SWIPE ENABLED) =================
+      // BODY swipe left right
       body: TabBarView(
+
         controller: _tabController,
         physics: const BouncingScrollPhysics(),
         children: const [
@@ -344,3 +344,6 @@ class _ManageMainPageState extends State<ManageMainPage>
     );
   }
 }
+   // class New{
+   //
+   // }

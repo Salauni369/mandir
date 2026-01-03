@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import '../../controllers/BottomNavController.dart';
 import '../../controllers/darshan_controller.dart';
 import '../../controllers/dashboard_cotroller.dart';
@@ -436,8 +437,8 @@ class _DashboardPageState extends State<DashboardPage> {
    Widget _liveDarshanCard(DarshanModel darshan) {
      String img;
 
-     if (darshan.mobile_image != null && darshan.mobile_image!.isNotEmpty) {
-       img = ImageConverter.optimizeCloudinaryUrl(darshan.mobile_image!);
+     if (darshan.mobileImage != null && darshan.mobileImage!.isNotEmpty) {
+       img = ImageConverter.optimizeCloudinaryUrl(darshan.mobileImage!);
      } else {
        img = "https://picsum.photos/300";
      }
@@ -490,90 +491,87 @@ class _DashboardPageState extends State<DashboardPage> {
 
 
 
-   Widget _overviewCard() {
-     return Obx(() {
-       final home = controller.homeData.value;
-       // if (controller.loading.value) {
-       //   return Container(
-       //     height: 120,
-       //     child: Center(child: CircularProgressIndicator()),
-       //   );
-       // }
-       if (home == null) {
-         return Container(
-           padding: const EdgeInsets.all(14),
-           child: Text("No data available"),
-         );
-       }
+// 🔥 REPLACE THIS FUNCTION IN YOUR dashboard.dart FILE
 
-       return Container(
-         padding: const EdgeInsets.all(14),
-         decoration: BoxDecoration(
-           borderRadius: BorderRadius.circular(14),
-           border: Border.all(color: Colors.grey.shade300),
-         ),
-         child: Row(
-           children: [
-             ClipRRect(
-               borderRadius: BorderRadius.circular(4),
-               child:
-               CachedNetworkImage(
-                 imageUrl: ImageConverter.optimizeCloudinaryUrl(home.image),
-                 height: 80,
-                 width: 80,
-                 fit: BoxFit.cover,
-                 placeholder: (_, __) =>
-                 const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                 errorWidget: (_, __, ___) => Container(
-                   height: 80,
-                   width: 90,
-                   color: Colors.grey.shade300,
-                   child: const Icon(Icons.broken_image),
-                 ),
-               ),
+  Widget _overviewCard() {
+    return Obx(() {
+      final home = controller.homeData.value;
+      if (home == null) {
+        return Container(
+          padding: const EdgeInsets.all(14),
+          child: Text("No data available"),
+        );
+      }
 
+      // 🔥 GET SAVED LOCATION FROM GETSTORAGE
+      final box = GetStorage();
+      final savedCity = box.read("saved_city") ?? home.location['city'] ?? '';
+      final savedState = box.read("saved_state") ?? home.location['state'] ?? '';
+      final savedCountry = box.read("saved_country") ?? home.location['country'] ?? 'India';
 
-
-             ),
-
-             const SizedBox(width: 14),
-             Expanded(
-               child: RichText(
-                 text: TextSpan(
-                   children: [
-                     // 🔥 TEMPLE NAME
-                     TextSpan(
-                       text: "${home.name}\n",
-                       style: const TextStyle(
-                         fontSize: 14,
-                         fontWeight: FontWeight.w700,
-                         color: Colors.black,
-                         height: 1.3,
-                       ),
-                     ),
-
-                     // 📍 LOCATION
-                     TextSpan(
-                       text:
-                       "${home.location['city']}, ${home.location['state']}, ${home.location['country']}",
-                       style: TextStyle(
-                         fontSize: 12,
-                         fontWeight: FontWeight.w500,
-                         color: Colors.grey.shade600,
-                         height: 1.5,
-                       ),
-                     ),
-                   ],
-                 ),
-               ),
-             ),
-
-           ],
-         ),
-       );
-     }
-     );
-   }
+      return Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: CachedNetworkImage(
+                imageUrl: ImageConverter.optimizeCloudinaryUrl(home.image),
+                height: 80,
+                width: 80,
+                fit: BoxFit.cover,
+                placeholder: (_, __) =>
+                const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                errorWidget: (_, __, ___) => Container(
+                  height: 80,
+                  width: 90,
+                  color: Colors.grey.shade300,
+                  child: const Icon(Icons.broken_image),
+                ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    // 🔥 TEMPLE NAME
+                    TextSpan(
+                      text: "${home.name}\n",
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
+                        height: 1.3,
+                      ),
+                    ),
+                    // 📍 LOCATION (FROM GETSTORAGE)
+                    TextSpan(
+                      text: savedCity.isNotEmpty
+                          ? "$savedCity, $savedState, $savedCountry"
+                          : "Location not set",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: savedCity.isNotEmpty
+                            ? Colors.grey.shade600
+                            : Colors.red.shade400,
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
 
    Widget _timeRow(String title, String time) {
     return Row(

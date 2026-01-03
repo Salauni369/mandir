@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import '../../../location/models/location_suggestion.dart';
 import '../../../location/services/places_api_service.dart';
 import '../../controller/select_location_controller.dart';
@@ -13,7 +14,12 @@ import 'add_address_detail.dart';
 class SelectLocationScreen extends StatefulWidget {
   final AddressData? addressData;
   final String? type;
-  const SelectLocationScreen({super.key, this.addressData, this.type});
+
+  const SelectLocationScreen({
+    super.key,
+    this.addressData,
+    this.type,
+  });
 
   @override
   State<SelectLocationScreen> createState() => _SelectLocationScreenState();
@@ -23,6 +29,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
   final controller = Get.find<SelectLocationController>();
   final PlacesApiService _placesService = PlacesApiService();
   final TextEditingController _searchController = TextEditingController();
+
   Timer? _debounceTimer;
 
   final _suggestions = <LocationSuggestion>[].obs;
@@ -35,7 +42,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
     _searchController.addListener(_onSearchChanged);
   }
 
-  _currentLocation() async {
+  Future<void> _currentLocation() async {
     await controller.initCurrentLocation();
     if (controller.mapController != null) {
       await controller.mapController!.animateCamera(
@@ -62,14 +69,17 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
       _suggestions.clear();
       return;
     }
+
     _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 400), () {
-      _fetchSuggestions(query);
-    });
+    _debounceTimer = Timer(
+      const Duration(milliseconds: 400),
+          () => _fetchSuggestions(query),
+    );
   }
 
   Future<void> _fetchSuggestions(String query) async {
     if (query.isEmpty) return;
+
     _isLoading.value = true;
     try {
       final results = await _placesService.getAutocompleteSuggestions(
@@ -80,7 +90,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
         components: 'country:in',
       );
       _suggestions.assignAll(results);
-    } catch (e) {
+    } catch (_) {
       _suggestions.clear();
     } finally {
       _isLoading.value = false;
@@ -92,42 +102,43 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => LocationSearchBottomSheet(placesService: _placesService),
+      builder: (_) =>
+          LocationSearchBottomSheet(placesService: _placesService),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Select Your Location")),
+      appBar: AppBar(title: const Text("Select Your Location")),
       body: Stack(
         children: [
-          // 🗺️ Google Map
-          Obx(() => GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: controller.currentLatLng.value,
-              zoom: 17,
+          /// MAP
+          Obx(
+                () => GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: controller.currentLatLng.value,
+                zoom: 17,
+              ),
+              onMapCreated: controller.onMapCreated,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: false,
+              onCameraMove: controller.onCameraMove,
+              onCameraIdle: controller.onCameraIdle,
+              circles: controller.circleList.map((circleData) {
+                return Circle(
+                  circleId: CircleId(circleData['id'].toString()),
+                  center: circleData['center'] as LatLng,
+                  radius: circleData['radius'] as double,
+                  fillColor: Colors.lightBlueAccent.withOpacity(0.2),
+                  strokeColor: Colors.lightBlueAccent.withOpacity(0.6),
+                  strokeWidth: 2,
+                );
+              }).toSet(),
             ),
-            onMapCreated: controller.onMapCreated,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            onCameraMove: controller.onCameraMove,
-            onCameraIdle: controller.onCameraIdle,
+          ),
 
-            // 🔵 Added 80m light blue radius circle
-            circles: controller.circleList.map((circleData) {
-              return Circle(
-                circleId: CircleId(circleData['id'].toString()),
-                center: circleData['center'] as LatLng,
-                radius: circleData['radius'] as double,
-                fillColor: Colors.lightBlueAccent.withOpacity(0.2),
-                strokeColor: Colors.lightBlueAccent.withOpacity(0.6),
-                strokeWidth: 2,
-              );
-            }).toSet(),
-          )),
-
-          // 🔍 Search Bar (grey border, black text)
+          /// SEARCH BAR
           Positioned(
             top: 12,
             left: 12,
@@ -139,7 +150,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                 decoration: BoxDecoration(
                   color: Colors.white.withAlpha(200),
-                  border: Border.all(color: Colors.grey.shade300, width: 1),
+                  border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -159,19 +170,14 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
             ),
           ),
 
-          // 📍 Pin marker (custom image + bottom circle)
+          /// PIN
           Center(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 41.8, left: 0.5),
               child: Stack(
                 alignment: Alignment.topCenter,
                 children: [
-                  // Image.asset(
-                  //   AllImages.pin,
-                  //   width: 70,
-                  //   height: 70,
-                  // ),
-                  Icon(Icons.location_on, color: Colors.blue,),
+                  const Icon(Icons.location_on, color: Colors.blue),
                   Positioned(
                     bottom: 6,
                     child: Container(
@@ -179,11 +185,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                       height: 16,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          width: 2,
-                          color: Colors.black87,
-                        ),
-                        color: Colors.transparent,
+                        border: Border.all(width: 2, color: Colors.black87),
                       ),
                     ),
                   ),
@@ -192,7 +194,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
             ),
           ),
 
-          // 📍 Current Location Button
+          /// CURRENT LOCATION BTN
           Positioned(
             bottom: 240,
             right: 8,
@@ -206,118 +208,99 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                     colors: [Color(0xFF74ABE2), Color(0xFF5563DE)],
                   ),
                 ),
-                child:
-                const Icon(Icons.my_location, color: Colors.white, size: 22),
+                child: const Icon(Icons.my_location,
+                    color: Colors.white, size: 22),
               ),
             ),
           ),
 
-          // 🏠 Bottom Address Container
-          Obx(() => Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius:
-                BorderRadius.vertical(top: Radius.circular(18)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 20,
-                    offset: Offset(0, -5),
-                  ),
-                ],
-              ),
-              child: SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 18, vertical: 15),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        controller.locationTitle.value,
-                        style: GoogleFonts.roboto(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        controller.locationAddress.value,
-                        style: GoogleFonts.roboto(
-                          fontSize: 14,
-                          color: Colors.grey[700],
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 20),
-
-                      // ✅ Confirm button (grey border, black text)
-                      InkWell(
-                        onTap: () async {
-                          final details = await controller.getAddressParts(controller.currentLatLng.value);
-                          // Get.to(
-                          //       () => AddAddressDetailsScreen(
-                          //     selectedLatLng:
-                          //     controller.currentLatLng.value,
-                          //     selectedAddress:
-                          //     controller.locationAddress.value,
-                          //     selectedTitle:
-                          //     controller.locationTitle.value,
-                          //     addressData: widget.addressData,
-                          //     pageType: widget.type ?? "",
-                          //     country: details['country'] ?? '',
-                          //     state: details['state'] ?? '',
-                          //     city: details['city'] ?? '',
-                          //     zipCode: details['postal_code'] ?? '',
-                          //   ),
-                          //   transition: Transition.rightToLeft,
-                          // );
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          alignment: Alignment.center,
-                          padding:
-                          const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                                color: Colors.grey.shade400, width: 1),
-                            borderRadius: BorderRadius.circular(12),
-                            color: Colors.grey.shade100,
+          /// BOTTOM SHEET
+          Obx(
+                () => Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                  BorderRadius.vertical(top: Radius.circular(18)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 20,
+                      offset: Offset(0, -5),
+                    ),
+                  ],
+                ),
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 15),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          controller.locationTitle.value,
+                          style: GoogleFonts.roboto(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                          child: Text(
-                            'Confirm Location',
-                            style: GoogleFonts.roboto(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          controller.locationAddress.value,
+                          style: GoogleFonts.roboto(fontSize: 14),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 20),
+
+                        /// CONFIRM
+                        InkWell(
+                          onTap: () async {
+                            await controller.confirmLocationAndSave();
+                            Get.back();
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            alignment: Alignment.center,
+                            padding:
+                            const EdgeInsets.symmetric(vertical: 14),
+                            decoration: BoxDecoration(
+                              border:
+                              Border.all(color: Colors.grey.shade400),
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.grey.shade100,
+                            ),
+                            child: Text(
+                              'Confirm Location',
+                              style: GoogleFonts.roboto(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 14),
-                      Obx(() => Center(
-                        child: Text(
-                          controller.locationDistance.value,
-                          style: GoogleFonts.roboto(
-                            fontSize: 13,
-                            color: Colors.pink[600],
+                        const SizedBox(height: 14),
+                        Center(
+                          child: Text(
+                            controller.locationDistance.value,
+                            style: GoogleFonts.roboto(
+                              fontSize: 13,
+                              color: Colors.pink[600],
+                            ),
                           ),
                         ),
-                      )),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          )),
+          ),
         ],
       ),
     );
@@ -330,14 +313,14 @@ class TrianglePainter extends CustomPainter {
     final paint = Paint()
       ..shader = const LinearGradient(
         colors: [Color(0xFFFD6E6A), Color(0xFFFFB88C)],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
-      ..style = PaintingStyle.fill;
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
     final path = Path()
       ..moveTo(size.width / 2, size.height)
       ..lineTo(0, 0)
       ..lineTo(size.width, 0)
       ..close();
+
     canvas.drawPath(path, paint);
   }
 

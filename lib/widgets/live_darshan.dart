@@ -247,7 +247,7 @@ class DarshanCard extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(6), // 🔥 top + bottom
                   child: loadImage(
-                    darshan.mobile_image,
+                    darshan.mobileImage,
                     height: 140,
                     width: double.infinity,
                     fit: BoxFit.cover,

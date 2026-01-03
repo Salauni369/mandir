@@ -7,7 +7,7 @@ class LogoutDialog {
   static void show(BuildContext context) {
     showDialog(
       context: context,
-      barrierDismissible: false, // Can't dismiss by tapping outside
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
           shape: RoundedRectangleBorder(
@@ -130,63 +130,26 @@ class LogoutDialog {
     // Close dialog
     Navigator.pop(context);
 
-    // Show loading
+    // ✅ UPDATED: Minimalist Black & White Loading
     Get.dialog(
-      Center(
-        child: Container(
-          padding: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF7A00)),
-              ),
-              SizedBox(height: 16),
-              Text(
-                "Signing out...",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      _MinimalistLoading(),
       barrierDismissible: false,
+      barrierColor: Colors.black.withOpacity(0.5),
     );
 
     // Clear all data
     Future.delayed(Duration(milliseconds: 1500), () {
       final box = GetStorage();
 
-      // Clear all stored data
       box.remove("access_token");
       box.remove("refresh_token");
       box.remove("user_data");
       box.remove("is_logged_in");
       box.remove("religion");
 
-      // Or clear everything at once
-      // box.erase();
-
-      // Close loading
       Get.back();
+      Get.offAll(() => LoginPage());
 
-      // Navigate to login page and clear all previous routes
-      Get.offAll(()=> LoginPage()); // Using named route
-
-      // OR if you're not using named routes:
-      // Navigator.of(context).pushAndRemoveUntil(
-      //   MaterialPageRoute(builder: (_) => LoginPage()),
-      //   (route) => false,
-      // );
-
-      // Show success message
       Get.snackbar(
         "Signed Out",
         "You have been successfully signed out",
@@ -199,5 +162,104 @@ class LogoutDialog {
         borderRadius: 12,
       );
     });
+  }
+}
+
+// ========================================
+// ✅ MINIMALIST BLACK & WHITE LOADING
+// ========================================
+class _MinimalistLoading extends StatefulWidget {
+  @override
+  State<_MinimalistLoading> createState() => _MinimalistLoadingState();
+}
+
+class _MinimalistLoadingState extends State<_MinimalistLoading>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 40, vertical: 32),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ✅ Simple Animated Dots (No Yellow Line!)
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: List.generate(3, (index) {
+                    final delay = index * 0.2;
+                    final value = (_controller.value - delay).clamp(0.0, 1.0);
+
+                    // Bounce animation
+                    final scale = value < 0.5
+                        ? 1.0 + (value * 2) * 0.5  // Scale up
+                        : 1.5 - ((value - 0.5) * 2) * 0.5;  // Scale down
+
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 5),
+                      child: Transform.scale(
+                        scale: scale,
+                        child: Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: Colors.black87,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                );
+              },
+            ),
+
+            SizedBox(height: 20),
+
+            // Text
+            Text(
+              "Signing out...",
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.black87,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.3,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

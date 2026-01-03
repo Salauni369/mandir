@@ -1,57 +1,4 @@
-// import 'dart:convert';
-// import 'dart:io';
-// import 'package:http/http.dart' as http;
-// import 'package:zamboree_devotion/common/token_storage.dart';
-//
-// class UtilMethod {
-//   static const String _url = "https://api.gamsgroup.in/spiritual/buffer";
-//
-//   static Future<String> uploadImageAndGetUrl(String imagePath) async {
-//     final uri = Uri.parse(_url);
-//     final request = http.MultipartRequest('POST', uri);
-//
-//     final token = TokenStorage.accessToken;
-//     request.headers['Authorization'] = 'Bearer $token';
-//
-//     final file = await http.MultipartFile.fromPath(
-//       'image',
-//       imagePath,
-//       contentType: http.MediaType('image', 'png'),
-//     );
-//
-//     request.files.add(file);
-//
-//     print("🚀 IMAGE UPLOAD START");
-//     print("➡️ URL      : $uri");
-//     print("➡️ HEADERS  : ${request.headers}");
-//     print("➡️ FILE    : field=${file.field}, path=$imagePath");
-//     print("➡️ FILE SIZE: ${await File(imagePath).length()} bytes");
-//     print("➡️ MIME     : image/png");
-//
-//     final response = await request.send();
-//     final responseBody = await response.stream.bytesToString();
-//
-//     print("⬅️ STATUS  : ${response.statusCode}");
-//     print("⬅️ RESPONSE: $responseBody");
-//
-//     // 🔥 FIX IS HERE
-//     if (response.statusCode == 200 || response.statusCode == 201) {
-//       final decoded = jsonDecode(responseBody);
-//       final imageUrl = decoded['data']?['url']?.toString() ?? "";
-//
-//       if (imageUrl.isEmpty) {
-//         throw "❌ Image URL not found in response";
-//       }
-//
-//       print("✅ IMAGE URL: $imageUrl");
-//       return imageUrl;
-//     } else {
-//       throw "❌ Image upload failed: ${response.statusCode} $responseBody";
-//     }
-//   }
-//
-//
-// }
+
 
 import 'dart:convert';
 import 'dart:io';
@@ -62,9 +9,7 @@ import '../utils/api_header.dart';
 import '../utils/apiconstants.dart';
 
 class UtilMethod {
-  // =========================
-  // UPLOAD IMAGE AND GET URL
-  // =========================
+
   static Future<String> uploadImageAndGetUrl(String imagePath) async {
     final uri = Uri.parse(ApiConstants.buffer); // Your upload endpoint
 

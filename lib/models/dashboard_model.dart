@@ -177,6 +177,7 @@ class TempleHomeModel {
   // LIVE DARSHAN
   final List<DarshanModel> liveDarshan;
 
+
   // ADDITIONAL INFO
   final List<AdditionalInfo> additionalInfo;
 
@@ -263,6 +264,7 @@ class TempleHomeModel {
     );
   }
 }
+
 
 // ---------------- ADDITIONAL INFO ----------------
 class AdditionalInfo {

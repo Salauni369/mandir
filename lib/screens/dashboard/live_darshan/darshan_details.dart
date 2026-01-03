@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:zamboree_devotion/widgets/app_colors.dart';
 
 import '../../../models/live_darshan_model.dart';
 import 'edit_darshan.dart';
@@ -28,7 +29,7 @@ class _DarshanDetailPageState extends State<DarshanDetailPage> {
     super.initState();
 
     final videoId =
-        YoutubePlayer.convertUrlToId(widget.darshan.liveLink) ?? "";
+        YoutubePlayer.convertUrlToId(widget.darshan.embeddedLink) ?? "";
 
     _ytController = YoutubePlayerController(
       initialVideoId: videoId,
@@ -156,12 +157,12 @@ class _DarshanDetailPageState extends State<DarshanDetailPage> {
 
             /// ---------- LINK ----------
             InkWell(
-              onTap: () => _openLink(model.liveLink),
+              onTap: () => _openLink(model.embeddedLink),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
-                      model.liveLink,
+                      model.embeddedLink,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -193,17 +194,17 @@ class _DarshanDetailPageState extends State<DarshanDetailPage> {
             /// ---------- MOBILE IMAGE ----------
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: model.mobile_image == null
+              child: model.mobileImage == null
                   ? Container(
                 height: 220,
                 color: Colors.grey.shade300,
                 child:
                 const Icon(Icons.image, size: 40),
               )
-                  : model.mobile_image!.startsWith("http")
+                  : model.mobileImage!.startsWith("http")
                   ? CachedNetworkImage(
                 imageUrl: safeImageUrl(
-                    model.mobile_image!),
+                    model.mobileImage!),
                 height: 220,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -222,7 +223,7 @@ class _DarshanDetailPageState extends State<DarshanDetailPage> {
                     ),
               )
                   : Image.file(
-                File(model.mobile_image!),
+                File(model.mobileImage!),
                 height: 220,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -247,7 +248,7 @@ class _DarshanDetailPageState extends State<DarshanDetailPage> {
                   foregroundColor: Colors.black,
                   side: BorderSide.none,
                   padding: const EdgeInsets.symmetric(
-                      vertical: 14),
+                      vertical: 10),
                   shape: RoundedRectangleBorder(
                     borderRadius:
                     BorderRadius.circular(40),
@@ -265,10 +266,10 @@ class _DarshanDetailPageState extends State<DarshanDetailPage> {
             Expanded(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepOrange,
+                  backgroundColor: AppColors.hinduBase,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
-                      vertical: 14),
+                      vertical: 10),
                   shape: RoundedRectangleBorder(
                     borderRadius:
                     BorderRadius.circular(40),

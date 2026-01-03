@@ -1,230 +1,312 @@
-// import 'dart:convert';
-// import 'dart:io';
+// //
+// //
+// // import 'package:flutter/material.dart';
+// // import 'package:get/get.dart';
+// // import 'dart:developer'; // 👈 for logging
+// //
+// // import '../models/live_darshan_model.dart';
+// // import '../services/livedarshan.dart';
+// // import '../widgets/darshansucces.dart';
+// // import 'BottomNavController.dart';
+// // import 'dashboard_cotroller.dart';
+// //
+// // class DarshanController extends GetxController {
+// //   final isPageLoading = true.obs;
+// //   final isActionLoading = false.obs;
+// //
+// //   final liveDarshans = <DarshanModel>[].obs;
+// //   final pastDarshans = <DarshanModel>[].obs;
+// //
+// //   @override
+// //   void onInit() {
+// //     super.onInit();
+// //     log("DarshanController initialized");
+// //     fetchDarshans();
+// //   }
+// //
+// //   Future<void> fetchDarshans() async {
+// //     try {
+// //       isPageLoading(true);
+// //       log("Fetching darshans...");
+// //
+// //       final home = Get.find<TempleHomeController>().homeData.value;
+// //       if (home == null) {
+// //         log("Home data is null, skipping darshan fetch");
+// //         return;
+// //       }
+// //
+// //       liveDarshans.value = home.liveDarshan.where((e) => e.isLive).toList();
+// //       pastDarshans.value = home.liveDarshan.where((e) => !e.isLive).toList();
+// //
+// //       log("Fetched ${liveDarshans.length} live darshans and ${pastDarshans.length} past darshans");
+// //     } finally {
+// //       isPageLoading(false);
+// //       log("Darshan fetch completed");
+// //     }
+// //   }
+// //
+// //   // ===============================
+// //   // ADD DARSHAN (URL ONLY)
+// //   // ===============================
+// //   Future<void> addDarshan({
+// //     required String title,
+// //     required String embeddedLink,
+// //     required String imageUrl,
+// //   }) async {
+// //     try {
+// //       isActionLoading(true);
+// //       log("Adding darshan: title=$title, link=$embeddedLink, image=$imageUrl");
+// //
+// //       if (!imageUrl.startsWith("http")) {
+// //         log("Invalid image URL provided: $imageUrl");
+// //         throw Exception("Invalid image URL");
+// //       }
+// //
+// //       final darshan = DarshanModel(
+// //         id: "",
+// //         title: title,
+// //         embeddedLink: embeddedLink,
+// //         status: "ACTIVE",
+// //         mobileImage: imageUrl,
+// //         createdAt: DateTime.now(),
+// //       );
+// //
+// //       await DarshanService.add(darshan);
+// //       log("Darshan added successfully via service");
+// //
+// //       await Get.find<TempleHomeController>().fetchHomeData();
+// //       await fetchDarshans();
+// //
+// //       if (Get.isDialogOpen ?? false) Get.back();
+// //
+// //       await showDarshanSuccessDialog(
+// //         title: "Darshan Added Successfully",
+// //         subtitle: "Your live darshan entry is ready.",
+// //       );
+// //
+// //       Get.find<BottomNavController>().changeTab(2);
+// //       log("Darshan add flow completed");
+// //     } finally {
+// //       isActionLoading(false);
+// //     }
+// //   }
+// //
+// //   // ===============================
+// //   // UPDATE DARSHAN (URL ONLY)
+// //   // ===============================
+// //   Future<void> updateDarshan(DarshanModel darshan) async {
+// //     try {
+// //       isActionLoading(true);
+// //       log("Updating darshan with id=${darshan.id}");
+// //
+// //       if (!darshan.mobileImage.startsWith("http")) {
+// //         log("Invalid image URL provided: ${darshan.mobileImage}");
+// //         throw Exception("Invalid image URL");
+// //       }
+// //
+// //       await DarshanService.update(darshan.id, darshan);
+// //       log("Darshan updated successfully via service");
+// //
+// //       await Get.find<TempleHomeController>().fetchHomeData();
+// //       await fetchDarshans();
+// //
+// //       if (Get.isDialogOpen ?? false) Get.back();
+// //       Get.back();
+// //
+// //       await showDarshanSuccessDialog(
+// //         title: "Darshan Updated Successfully",
+// //         subtitle: "Your changes have been saved.",
+// //       );
+// //
+// //       Get.find<BottomNavController>().changeTab(2);
+// //       log("Darshan update flow completed for id=${darshan.id}");
+// //     } finally {
+// //       isActionLoading(false);
+// //     }
+// //   }
+// //
+// //   Future<void> deleteDarshan(String id) async {
+// //     log("Deleting darshan with id=$id");
+// //     await DarshanService.delete(id);
+// //     log("Darshan deleted successfully via service");
+// //
+// //     await Get.find<TempleHomeController>().fetchHomeData();
+// //     await fetchDarshans();
+// //     log("Darshan delete flow completed for id=$id");
+// //   }
+// // }
+//
 //
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
-// import 'package:http/http.dart' as http;
-// import 'package:http_parser/http_parser.dart';
+// import 'dart:developer';
 //
-// import '../../../controllers/dashboard_cotroller.dart';
-// import '../../../models/live_darshan_model.dart';
-// import '../../../utils/api_header.dart';
-// import '../../../utils/apiconstants.dart';
-// import '../screens/dashboard/live_darshan/Livedarshan.dart';
+// import '../models/live_darshan_model.dart';
+// import '../services/livedarshan.dart';
+// import '../widgets/darshansucces.dart';
+// import 'BottomNavController.dart';
+// import 'dashboard_cotroller.dart';
 //
 // class DarshanController extends GetxController {
-//   final isLoading = false.obs;
-//
+//   final isPageLoading = true.obs;
+//   final isActionLoading = false.obs;
+//   final LiveDarshanController = Get.put(LiveDarshanController());
 //   final liveDarshans = <DarshanModel>[].obs;
+//
 //   final pastDarshans = <DarshanModel>[].obs;
 //
 //   @override
 //   void onInit() {
 //     super.onInit();
+//     log("DarshanController initialized");
 //     fetchDarshans();
 //   }
 //
-//   // ===================================================
-//   // FETCH DARSHANS (FROM HOME DATA)
-//   // ===================================================
+//   // ===============================
+//   // FETCH DARSHANS (🔥 FIXED LOGIC)
+//   // ===============================
 //   Future<void> fetchDarshans() async {
 //     try {
-//       isLoading(true);
+//       isPageLoading(true);
+//       log("Fetching darshans...");
 //
 //       final home = Get.find<TempleHomeController>().homeData.value;
 //       if (home == null) {
-//         debugPrint("❌ homeData null");
+//         log("Home data is null, skipping darshan fetch");
 //         return;
 //       }
 //
-//       liveDarshans.value =
-//           home.liveDarshan.where((e) => e.isLive).toList();
+//       final all = home.liveDarshan;
 //
-//       pastDarshans.value =
-//           home.liveDarshan.where((e) => !e.isLive).toList();
+//       // 🔥 MAIN FIX — ACTIVE darshan ko bhi LIVE treat karo
+//       liveDarshans.value = all.where((e) {
+//         return e.isLive == true || e.status == "ACTIVE";
+//       }).toList();
 //
-//       debugPrint("✅ Darshans fetched | LIVE=${liveDarshans.length} | PAST=${pastDarshans.length}");
-//     } catch (e) {
-//       debugPrint("❌ fetchDarshans error: $e");
+//       pastDarshans.value = all.where((e) {
+//         return e.isLive == false && e.status != "ACTIVE";
+//       }).toList();
+//
+//       log(
+//         "Fetched ${liveDarshans.length} live darshans and ${pastDarshans.length} past darshans",
+//       );
 //     } finally {
-//       isLoading(false);
+//       isPageLoading(false);
+//       log("Darshan fetch completed");
 //     }
 //   }
 //
-//   // ===================================================
-//   // ADD DARSHAN (CREATE)
-//   // ===================================================
-//   Future<bool> addDarshan({
+//
+//   // ===============================
+//   // ADD DARSHAN (URL ONLY)
+//   // ===============================
+//   Future<void> addDarshan({
 //     required String title,
 //     required String embeddedLink,
-//     required String imagePath, // LOCAL FILE PATH
+//     required String imageUrl,
 //   }) async {
 //     try {
-//       isLoading(true);
+//       isActionLoading(true);
+//       log("Adding darshan: title=$title, link=$embeddedLink, image=$imageUrl");
 //
-//       final request = http.MultipartRequest(
-//         "POST",
-//         Uri.parse(ApiConstants.liveDarshan),
-//       );
-//
-//       request.headers.addAll(ApiHeaders.headers());
-//
-//       request.fields['title'] = title.trim();
-//       request.fields['embeddedLink'] = embeddedLink.trim();
-//       request.fields['status'] = "ACTIVE";
-//
-//       request.files.add(
-//         await http.MultipartFile.fromPath(
-//           'mobile_image',
-//           imagePath,
-//           contentType: MediaType('image', 'jpeg'),
-//         ),
-//       );
-//
-//       debugPrint("🚀 ADD DARSHAN REQUEST SENT");
-//
-//       final streamed = await request.send();
-//       final response = await http.Response.fromStream(streamed);
-//
-//       debugPrint("📥 ADD STATUS: ${response.statusCode}");
-//
-//       if (response.statusCode == 200 || response.statusCode == 201) {
-//         await Get.find<TempleHomeController>().fetchHomeData();
-//         await fetchDarshans();
-//         return true;
+//       if (!imageUrl.startsWith("http")) {
+//         log("Invalid image URL provided: $imageUrl");
+//         throw Exception("Invalid image URL");
 //       }
 //
-//       final msg = jsonDecode(response.body)['message'] ?? 'Add failed';
-//       throw msg;
-//     } catch (e) {
-//       debugPrint("❌ ADD ERROR: $e");
-//       Get.snackbar(
-//         "Error",
-//         e.toString(),
-//         backgroundColor: Colors.red,
-//         colorText: Colors.white,
-//       );
-//       return false;
-//     } finally {
-//       isLoading(false);
-//     }
-//   }
-//
-//   // ===================================================
-//   // UPDATE DARSHAN (CREATE + _id)
-//   // ===================================================
-//   Future<void> updateDarshan(DarshanModel darshan) async {
-//     try {
-//       isLoading(true);
-//
-//       // 🔥 IMAGE MUST BE LOCAL FILE
-//       if (darshan.mobile_image == null ||
-//           darshan.mobile_image!.startsWith("http")) {
-//         throw "Please select image again";
-//       }
-//
-//       final request = http.MultipartRequest(
-//         "POST",
-//         Uri.parse(ApiConstants.liveDarshan),
+//       final darshan = DarshanModel(
+//         id: "",
+//         title: title,
+//         embeddedLink: embeddedLink,
+//         status: "ACTIVE", // 🔥 THIS WILL NOW SHOW IN LIVE
+//         mobileImage: imageUrl,
+//         createdAt: DateTime.now(),
 //       );
 //
-//       request.headers.addAll(ApiHeaders.headers());
+//       await DarshanService.add(darshan);
+//       log("Darshan added successfully via service");
 //
-//       request.fields['_id'] = darshan.id;
-//       request.fields['title'] = darshan.title.trim();
-//       request.fields['embeddedLink'] = darshan.liveLink.trim();
-//       request.fields['status'] = darshan.status;
-//
-//       request.files.add(
-//         await http.MultipartFile.fromPath(
-//           'mobile_image',
-//           darshan.mobile_image!,
-//           contentType: MediaType('image', 'jpeg'),
-//         ),
-//       );
-//
-//       debugPrint("🚀 UPDATE DARSHAN REQUEST SENT");
-//       debugPrint("➡️ ID: ${darshan.id}");
-//
-//       final streamed = await request.send();
-//       final response = await http.Response.fromStream(streamed);
-//
-//       debugPrint("📥 UPDATE STATUS: ${response.statusCode}");
-//
-//       if (response.statusCode == 200 || response.statusCode == 201) {
-//         await Get.find<TempleHomeController>().fetchHomeData();
-//         await fetchDarshans();
-//
-//         if (Get.isDialogOpen ?? false) Get.back();
-//         Get.offAll(() => DarshanMainPage());
-//
-//         Get.snackbar(
-//           "Success",
-//           "Darshan updated successfully",
-//           backgroundColor: Colors.green,
-//           colorText: Colors.white,
-//         );
-//         return;
-//       }
-//
-//       final msg = jsonDecode(response.body)['message'] ?? 'Update failed';
-//       throw msg;
-//     } catch (e) {
-//       debugPrint("❌ UPDATE ERROR: $e");
-//
-//       if (Get.isDialogOpen ?? false) Get.back();
-//
-//       Get.snackbar(
-//         "Update Failed",
-//         e.toString(),
-//         backgroundColor: Colors.red,
-//         colorText: Colors.white,
-//       );
-//     } finally {
-//       isLoading(false);
-//     }
-//   }
-//
-//   // ===================================================
-//   // DELETE DARSHAN (LOCAL REFRESH ONLY)
-//   // ===================================================
-//   Future<void> deleteDarshan(String id) async {
-//     try {
+//       // 🔥 Refresh source of truth
 //       await Get.find<TempleHomeController>().fetchHomeData();
 //       await fetchDarshans();
 //
-//       Get.snackbar(
-//         "Deleted",
-//         "Darshan removed",
-//         backgroundColor: Colors.green,
-//         colorText: Colors.white,
+//       if (Get.isDialogOpen ?? false) Get.back();
+//
+//       await showDarshanSuccessDialog(
+//         title: "Darshan Added Successfully",
+//         subtitle: "Your live darshan entry is ready.",
 //       );
-//     } catch (e) {
-//       Get.snackbar(
-//         "Error",
-//         "Delete failed",
-//         backgroundColor: Colors.red,
-//         colorText: Colors.white,
-//       );
+//
+//       Get.find<BottomNavController>().changeTab(2);
+//       log("Darshan add flow completed");
+//     } finally {
+//       isActionLoading(false);
 //     }
+//   }
+//
+//   // ===============================
+//   // UPDATE DARSHAN (URL ONLY)
+//   // ===============================
+//   Future<void> updateDarshan(DarshanModel darshan) async {
+//     try {
+//       isActionLoading(true);
+//       log("Updating darshan with id=${darshan.id}");
+//
+//       if (!darshan.mobileImage.startsWith("http")) {
+//         log("Invalid image URL provided: ${darshan.mobileImage}");
+//         throw Exception("Invalid image URL");
+//       }
+//
+//       await DarshanService.update(darshan.id, darshan);
+//       log("Darshan updated successfully via service");
+//
+//       await Get.find<TempleHomeController>().fetchHomeData();
+//       await fetchDarshans();
+//
+//       if (Get.isDialogOpen ?? false) Get.back();
+//       Get.back();
+//
+//       await showDarshanSuccessDialog(
+//         title: "Darshan Updated Successfully",
+//         subtitle: "Your changes have been saved.",
+//       );
+//
+//       Get.find<BottomNavController>().changeTab(2);
+//       log("Darshan update flow completed for id=${darshan.id}");
+//     } finally {
+//       isActionLoading(false);
+//     }
+//   }
+//
+//   // ===============================
+//   // DELETE DARSHAN
+//   // ===============================
+//   Future<void> deleteDarshan(String id) async {
+//     log("Deleting darshan with id=$id");
+//
+//     await DarshanService.delete(id);
+//     log("Darshan deleted successfully via service");
+//
+//     await Get.find<TempleHomeController>().fetchHomeData();
+//     await fetchDarshans();
+//
+//     log("Darshan delete flow completed for id=$id");
 //   }
 // }
 
-
-import 'dart:convert';
-import 'package:flutter/material.dart';
+import 'dart:developer';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 
-import '../../controllers/BottomNavController.dart';
-import '../../controllers/dashboard_cotroller.dart';
-import '../../models/live_darshan_model.dart';
-import '../../utils/api_header.dart';
-import '../../utils/apiconstants.dart';
+import '../get live dasharn/controller.dart';
+import '../models/live_darshan_model.dart';
+import '../services/livedarshan.dart';
+import '../widgets/darshansucces.dart';
+import 'BottomNavController.dart';
 
 class DarshanController extends GetxController {
-  final isLoading = false.obs;
+  // ---------------- STATE ----------------
+  final isPageLoading = true.obs;
+  final isActionLoading = false.obs;
 
   final liveDarshans = <DarshanModel>[].obs;
   final pastDarshans = <DarshanModel>[].obs;
@@ -232,117 +314,140 @@ class DarshanController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    log("DarshanController initialized");
     fetchDarshans();
   }
 
-  // ================= FETCH =================
+  // ===============================
+  // FETCH DARSHANS (SOURCE = LIVE API)
+  // ===============================
   Future<void> fetchDarshans() async {
     try {
-      isLoading(true);
+      isPageLoading(true);
+      log("DarshanController: fetchDarshans");
 
-      final home = Get.find<TempleHomeController>().homeData.value;
-      if (home == null) return;
+      final liveCtrl = Get.find<LiveDarshanController>();
 
-      liveDarshans.value =
-          home.liveDarshan.where((e) => e.isLive).toList();
+      // Agar live controller empty hai to API hit
+      if (liveCtrl.liveDarshans.isEmpty) {
+        await liveCtrl.fetchLiveDarshans();
+      }
 
-      pastDarshans.value =
-          home.liveDarshan.where((e) => !e.isLive).toList();
+      // 🔥 UI ko data
+      liveDarshans.assignAll(liveCtrl.liveDarshans);
+
+      // Abhi past ka logic/API nahi
+      pastDarshans.clear();
+
+      log(
+        "Fetched ${liveDarshans.length} live darshans for UI",
+      );
+    } catch (e) {
+      log("Fetch darshans error: $e");
     } finally {
-      isLoading(false);
+      isPageLoading(false);
     }
   }
 
-  // ================= ADD =================
-  Future<bool> addDarshan({
+  // ===============================
+  // ADD DARSHAN
+  // ===============================
+  Future<void> addDarshan({
     required String title,
     required String embeddedLink,
-    required String imagePath,
+    required String imageUrl,
   }) async {
     try {
-      isLoading(true);
+      isActionLoading(true);
+      log("Adding darshan: $title");
 
-      final req = http.MultipartRequest(
-        "POST",
-        Uri.parse(ApiConstants.liveDarshan),
+      final darshan = DarshanModel(
+        id: "",
+        title: title,
+        embeddedLink: embeddedLink,
+        status: "ACTIVE",
+        mobileImage: imageUrl,
+        createdAt: DateTime.now(),
       );
 
-      req.headers.addAll(ApiHeaders.headers());
-      req.fields['title'] = title;
-      req.fields['embeddedLink'] = embeddedLink;
-      req.fields['status'] = "ACTIVE";
+      await DarshanService.add(darshan);
+      log("Darshan added via service");
 
-      req.files.add(await http.MultipartFile.fromPath(
-        'mobile_image',
-        imagePath,
-        contentType: MediaType('image', 'jpeg'),
-      ));
+      // 🔥 REFRESH PIPELINE
+      await refreshAfterChange();
 
-      final res = await http.Response.fromStream(await req.send());
+      if (Get.isDialogOpen ?? false) Get.back();
 
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        await Get.find<TempleHomeController>().fetchHomeData();
-        await fetchDarshans();
-        return true;
-      }
+      await showDarshanSuccessDialog(
+        title: "Darshan Added Successfully",
+        subtitle: "Your live darshan entry is ready.",
+      );
 
-      throw jsonDecode(res.body)['message'];
+      Get.find<BottomNavController>().changeTab(2);
     } catch (e) {
-      Get.snackbar("Error", e.toString());
-      return false;
+      log("Add darshan error: $e");
+      rethrow;
     } finally {
-      isLoading(false);
+      isActionLoading(false);
     }
   }
 
-  // ================= UPDATE =================
+  // ===============================
+  // UPDATE DARSHAN
+  // ===============================
   Future<void> updateDarshan(DarshanModel darshan) async {
     try {
-      isLoading(true);
+      isActionLoading(true);
+      log("Updating darshan: ${darshan.id}");
 
-      if (darshan.mobile_image == null ||
-          darshan.mobile_image!.startsWith("http")) {
-        throw "Please select image again";
-      }
+      await DarshanService.update(darshan.id, darshan);
+      log("Darshan updated via service");
 
-      final req = http.MultipartRequest(
-        "POST",
-        Uri.parse(ApiConstants.liveDarshan),
+      await refreshAfterChange();
+
+      if (Get.isDialogOpen ?? false) Get.back();
+      Get.back();
+
+      await showDarshanSuccessDialog(
+        title: "Darshan Updated Successfully",
+        subtitle: "Your changes have been saved.",
       );
 
-      req.headers.addAll(ApiHeaders.headers());
-      req.fields['_id'] = darshan.id;
-      req.fields['title'] = darshan.title;
-      req.fields['embeddedLink'] = darshan.liveLink;
-      req.fields['status'] = darshan.status;
-
-      req.files.add(await http.MultipartFile.fromPath(
-        'mobile_image',
-        darshan.mobile_image!,
-        contentType: MediaType('image', 'jpeg'),
-      ));
-
-      final res = await http.Response.fromStream(await req.send());
-
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        await Get.find<TempleHomeController>().fetchHomeData();
-        await fetchDarshans();
-
-        if (Get.isDialogOpen ?? false) Get.back();
-
-        // 🔥 ONLY THIS
-        Get.find<BottomNavController>().changeTab(2);
-
-        Get.snackbar("Success", "Darshan updated");
-        return;
-      }
-
-      throw jsonDecode(res.body)['message'];
+      Get.find<BottomNavController>().changeTab(2);
     } catch (e) {
-      if (Get.isDialogOpen ?? false) Get.back();
-      Get.snackbar("Update Failed", e.toString());
+      log("Update darshan error: $e");
+      rethrow;
     } finally {
-      isLoading(false);
+      isActionLoading(false);
     }
+  }
+
+  // ===============================
+  // DELETE DARSHAN
+  // ===============================
+  Future<void> deleteDarshan(String id) async {
+    try {
+      isActionLoading(true);
+      log("Deleting darshan: $id");
+
+      await DarshanService.delete(id);
+      log("Darshan deleted via service");
+
+      await refreshAfterChange();
+    } catch (e) {
+      log("Delete darshan error: $e");
+      rethrow;
+    } finally {
+      isActionLoading(false);
+    }
+  }
+
+  // ===============================
+  // COMMON REFRESH (SINGLE SOURCE)
+  // ===============================
+  Future<void> refreshAfterChange() async {
+    final liveCtrl = Get.find<LiveDarshanController>();
+    await liveCtrl.fetchLiveDarshans();
+    await fetchDarshans();
   }
 }

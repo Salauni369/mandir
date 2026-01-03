@@ -35,14 +35,14 @@
 //   void initState() {
 //     super.initState();
 //     titleCtrl = TextEditingController(text: widget.darshan.title);
-//     linkCtrl = TextEditingController(text: widget.darshan.liveLink);
-//     mobile_image = widget.darshan.mobile_image;
+//     linkCtrl = TextEditingController(text: widget.darshan.embeddedLink);
+//     mobile_image = widget.darshan.mobileImage;
 //     isLive = widget.darshan.isLive;
 //
 //     print("🔵 EDIT PAGE INITIALIZED");
 //     print("➡️ Title: ${widget.darshan.title}");
-//     print("➡️ Link: ${widget.darshan.liveLink}");
-//     print("➡️ Image: ${widget.darshan.mobile_image}");
+//     print("➡️ Link: ${widget.darshan.embeddedLink}");
+//     print("➡️ Image: ${widget.darshan.mobileImage}");
 //     print("➡️ Status: ${widget.darshan.status}");
 //   }
 //
@@ -76,17 +76,6 @@
 //
 //       await controller.updateDarshan(updated);
 //
-//       Get.back(); // Close loading
-//
-//       await _showSuccessDialog(
-//         title: newValue ? "Moved to Live!" : "Moved to Past!",
-//         message: newValue
-//             ? "Darshan is now active and visible in Live section"
-//             : "Darshan moved to Past section",
-//       );
-//
-//       Get.back(); // Close edit page
-//
 //     } catch (e) {
 //       Get.back(); // Close loading
 //       Get.snackbar(
@@ -113,19 +102,16 @@
 //
 //       print("📤 UPLOADING NEW IMAGE...");
 //
-//       // Upload to cloudinary immediately
-//       final imageUrl = await UtilMethod.uploadImageAndGetUrl(img.path);
-//
 //       setState(() {
-//         mobile_image = imageUrl; // Store URL
+//         mobile_image = img.path; // Store local path
 //         isUploadingImage = false;
 //       });
 //
-//       print("✅ IMAGE UPLOADED: $imageUrl");
+//       print("✅ IMAGE SELECTED: ${img.path}");
 //
 //       Get.snackbar(
 //         "Success",
-//         "Image uploaded successfully",
+//         "Image selected successfully",
 //         backgroundColor: Colors.green.withOpacity(0.7),
 //         colorText: Colors.white,
 //         duration: const Duration(seconds: 2),
@@ -133,9 +119,9 @@
 //
 //     } catch (e) {
 //       setState(() => isUploadingImage = false);
-//       print("❌ IMAGE UPLOAD ERROR: $e");
+//       print("❌ IMAGE SELECTION ERROR: $e");
 //       Get.snackbar(
-//         "Upload Failed",
+//         "Selection Failed",
 //         e.toString(),
 //         backgroundColor: Colors.red,
 //         colorText: Colors.white,
@@ -159,6 +145,7 @@
 //
 //     setState(() => isUpdating = true);
 //
+//     // 🔥 Show loading dialog
 //     Get.dialog(
 //       const Center(child: CircularProgressIndicator()),
 //       barrierDismissible: false,
@@ -167,82 +154,23 @@
 //     try {
 //       final updated = widget.darshan.copyWith(
 //         title: titleCtrl.text.trim(),
-//         liveLink: linkCtrl.text.trim(), // ✅ YOUTUBE LINK
-//         mobile_image: mobile_image,
+//         embeddedLink: linkCtrl.text.trim(),
+//         mobileImage: mobile_image,
 //         status: isLive ? "ACTIVE" : "INACTIVE",
 //       );
 //
 //       print("📤 SENDING UPDATE REQUEST");
 //       await controller.updateDarshan(updated);
 //
-//       Get.back(); // Close loading
-//
-//       await _showSuccessDialog(
-//         title: "Updated Successfully!",
-//         message: "Your darshan details have been updated",
-//       );
-//
-//       Get.back(); // Close edit page
+//       // 🔥 Controller will handle everything
 //
 //     } catch (e) {
-//       Get.back(); // Close loading
+//       // 🔥 Close dialog on error
+//       if (Get.isDialogOpen ?? false) Get.back();
 //       print("❌ UPDATE ERROR: $e");
 //     } finally {
 //       setState(() => isUpdating = false);
 //     }
-//   }
-//
-//   // =========================
-//   // SUCCESS DIALOG
-//   // =========================
-//   Future<void> _showSuccessDialog({
-//     required String title,
-//     required String message,
-//   }) async {
-//     await Get.dialog(
-//       Center(
-//         child: Container(
-//           margin: const EdgeInsets.symmetric(horizontal: 32),
-//           padding: const EdgeInsets.all(24),
-//           decoration: BoxDecoration(
-//             color: Colors.white,
-//             borderRadius: BorderRadius.circular(16),
-//           ),
-//           child: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             children: [
-//               const Icon(
-//                 Icons.check_circle,
-//                 color: Colors.green,
-//                 size: 64,
-//               ),
-//               const SizedBox(height: 16),
-//               Text(
-//                 title,
-//                 style: const TextStyle(
-//                   fontSize: 20,
-//                   fontWeight: FontWeight.bold,
-//                 ),
-//                 textAlign: TextAlign.center,
-//               ),
-//               const SizedBox(height: 8),
-//               Text(
-//                 message,
-//                 style: TextStyle(
-//                   fontSize: 14,
-//                   color: Colors.grey.shade600,
-//                 ),
-//                 textAlign: TextAlign.center,
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//       barrierDismissible: false,
-//     );
-//
-//     await Future.delayed(const Duration(seconds: 2));
-//     Get.back(); // Close success dialog
 //   }
 //
 //   @override
@@ -302,9 +230,9 @@
 //           child: ElevatedButton(
 //             style: ElevatedButton.styleFrom(
 //               backgroundColor: AppColors.hinduBase,
-//               padding: const EdgeInsets.symmetric(vertical: 16),
+//               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
 //               shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(12),
+//                 borderRadius: BorderRadius.circular(20),
 //               ),
 //               disabledBackgroundColor: Colors.grey.shade300,
 //             ),
@@ -375,14 +303,7 @@
 //                     _label("Live Darshan Link *"),
 //                     _textbox(linkCtrl),
 //
-//                     const SizedBox(height: 8),
-//                     Text(
-//                       "Current Link: ${linkCtrl.text}",
-//                       style: TextStyle(
-//                         fontSize: 12,
-//                         color: Colors.grey.shade600,
-//                       ),
-//                     ),
+//                     // ❌ REMOVED "Current Link" TEXT
 //                   ],
 //                 ),
 //               ),
@@ -498,7 +419,6 @@
 // }
 
 
-import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -526,7 +446,7 @@ class _EditDarshanPageState extends State<EditDarshanPage> {
   late TextEditingController titleCtrl;
   late TextEditingController linkCtrl;
 
-  String? mobile_image;
+  String? mobile_image; // ✅ URL ONLY
   bool isLive = false;
   bool isUpdating = false;
   bool isUploadingImage = false;
@@ -535,15 +455,9 @@ class _EditDarshanPageState extends State<EditDarshanPage> {
   void initState() {
     super.initState();
     titleCtrl = TextEditingController(text: widget.darshan.title);
-    linkCtrl = TextEditingController(text: widget.darshan.liveLink);
-    mobile_image = widget.darshan.mobile_image;
+    linkCtrl = TextEditingController(text: widget.darshan.embeddedLink);
+    mobile_image = widget.darshan.mobileImage; // ✅ URL
     isLive = widget.darshan.isLive;
-
-    print("🔵 EDIT PAGE INITIALIZED");
-    print("➡️ Title: ${widget.darshan.title}");
-    print("➡️ Link: ${widget.darshan.liveLink}");
-    print("➡️ Image: ${widget.darshan.mobile_image}");
-    print("➡️ Status: ${widget.darshan.status}");
   }
 
   @override
@@ -567,46 +481,28 @@ class _EditDarshanPageState extends State<EditDarshanPage> {
     );
 
     try {
-      print("🔄 TOGGLE STATUS CHANGE");
-      print("➡️ New Status: ${newValue ? 'ACTIVE' : 'INACTIVE'}");
-
       final updated = widget.darshan.copyWith(
         status: newValue ? "ACTIVE" : "INACTIVE",
       );
 
       await controller.updateDarshan(updated);
-      //
-      // Get.back(); // Close loading
-      // Get.back(); // Close edit page
-
-      // 🔥 FIXED: Show snackbar after navigation
-      Get.snackbar(
-        "Success",
-        newValue ? "Moved to Live!" : "Moved to Past!",
-        backgroundColor: Colors.green.shade600,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 2),
-        icon: const Icon(Icons.check_circle, color: Colors.white),
-      );
-
     } catch (e) {
-      Get.back(); // Close loading
+      if (Get.isDialogOpen ?? false) Get.back();
+      setState(() => isLive = !newValue);
+
       Get.snackbar(
         "Error",
         "Failed to update status",
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
-      setState(() => isLive = !newValue);
     } finally {
       setState(() => isUpdating = false);
     }
   }
 
   // =========================
-  // IMAGE PICKER + UPLOAD
+  // IMAGE PICK + UPLOAD (URL ONLY)
   // =========================
   Future<void> _pickAndUploadImage() async {
     try {
@@ -615,98 +511,52 @@ class _EditDarshanPageState extends State<EditDarshanPage> {
 
       setState(() => isUploadingImage = true);
 
-      print("📤 UPLOADING NEW IMAGE...");
-
-      // Upload to cloudinary immediately
-      // final imageUrl = await UtilMethod.uploadImageAndGetUrl(img.path);
-
-      mobile_image = img.path; // ONLY LOCAL FILE PATH
+      // ✅ Upload and get URL
+      final uploadedUrl =
+      await UtilMethod.uploadImageAndGetUrl(img.path);
 
       setState(() {
-        mobile_image = img.path;; // Store URL
-
+        mobile_image = uploadedUrl; // ✅ URL ONLY
         isUploadingImage = false;
       });
-
-      print("✅ IMAGE UPLOADED: $img.path;");
 
       Get.snackbar(
         "Success",
         "Image uploaded successfully",
         backgroundColor: Colors.green.withOpacity(0.7),
         colorText: Colors.white,
-        duration: const Duration(seconds: 2),
       );
-
     } catch (e) {
       setState(() => isUploadingImage = false);
-      print("❌ IMAGE UPLOAD ERROR: $e");
+
       Get.snackbar(
-        "Upload Failed",
-        e.toString(),
+        "Error",
+        "Image upload failed",
         backgroundColor: Colors.red,
         colorText: Colors.white,
-        duration: const Duration(seconds: 3),
       );
     }
   }
-  //
-  // // =========================
-  // // UPDATE BUTTON - SAVE ALL CHANGES
-  // // =========================
-  // Future<void> _handleUpdate() async {
-  //   if (!formKey.currentState!.validate()) return;
-  //   if (isUpdating || isUploadingImage) return;
-  //
-  //   print("🔄 UPDATE BUTTON CLICKED");
-  //   print("➡️ Title: ${titleCtrl.text.trim()}");
-  //   print("➡️ Link: ${linkCtrl.text.trim()}");
-  //   print("➡️ Image: $mobile_image");
-  //   print("➡️ Status: ${isLive ? 'ACTIVE' : 'INACTIVE'}");
-  //
-  //   setState(() => isUpdating = true);
-  //
-  //   Get.dialog(
-  //     const Center(child: CircularProgressIndicator()),
-  //     barrierDismissible: false,
-  //   );
-  //
-  //   try {
-  //     final updated = widget.darshan.copyWith(
-  //       title: titleCtrl.text.trim(),
-  //       liveLink: linkCtrl.text.trim(),
-  //       mobile_image: mobile_image,
-  //       status: isLive ? "ACTIVE" : "INACTIVE",
-  //     );
-  //
-  //     print("📤 SENDING UPDATE REQUEST");
-  //     await controller.updateDarshan(updated);
-  //
-  //     Get.back(); // Close loading - controller will handle navigation and success message
-  //
-  //   } catch (e) {
-  //     Get.back(); // Close loading
-  //     print("❌ UPDATE ERROR: $e");
-  //   } finally {
-  //     setState(() => isUpdating = false);
-  //   }
-  // }
+
   // =========================
-// UPDATE BUTTON - SAVE ALL CHANGES
-// =========================
+  // UPDATE DARSHAN
+  // =========================
   Future<void> _handleUpdate() async {
     if (!formKey.currentState!.validate()) return;
     if (isUpdating || isUploadingImage) return;
 
-    print("🔄 UPDATE BUTTON CLICKED");
-    print("➡️ Title: ${titleCtrl.text.trim()}");
-    print("➡️ Link: ${linkCtrl.text.trim()}");
-    print("➡️ Image: $mobile_image");
-    print("➡️ Status: ${isLive ? 'ACTIVE' : 'INACTIVE'}");
+    if (mobile_image == null || !mobile_image!.startsWith('http')) {
+      Get.snackbar(
+        "Error",
+        "Please upload an image",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
 
     setState(() => isUpdating = true);
 
-    // 🔥 Show loading dialog
     Get.dialog(
       const Center(child: CircularProgressIndicator()),
       barrierDismissible: false,
@@ -715,20 +565,21 @@ class _EditDarshanPageState extends State<EditDarshanPage> {
     try {
       final updated = widget.darshan.copyWith(
         title: titleCtrl.text.trim(),
-        liveLink: linkCtrl.text.trim(),
-        mobile_image: mobile_image,
+        embeddedLink: linkCtrl.text.trim(),
+        mobileImage: mobile_image, // ✅ URL
         status: isLive ? "ACTIVE" : "INACTIVE",
       );
 
-      print("📤 SENDING UPDATE REQUEST");
       await controller.updateDarshan(updated);
-
-      // 🔥 Controller will handle dialog close and navigation
-
     } catch (e) {
-      // 🔥 Close dialog on error
       if (Get.isDialogOpen ?? false) Get.back();
-      print("❌ UPDATE ERROR: $e");
+
+      Get.snackbar(
+        "Error",
+        "Update failed",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } finally {
       setState(() => isUpdating = false);
     }
@@ -739,7 +590,6 @@ class _EditDarshanPageState extends State<EditDarshanPage> {
     return Scaffold(
       backgroundColor: Colors.white,
 
-      // -------------------- APP BAR --------------------
       appBar: AppBar(
         backgroundColor: AppColors.hinduBase,
         title: const Text(
@@ -748,7 +598,6 @@ class _EditDarshanPageState extends State<EditDarshanPage> {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          // TOGGLE SWITCH
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: Row(
@@ -773,31 +622,21 @@ class _EditDarshanPageState extends State<EditDarshanPage> {
         ],
       ),
 
-      // -------------------- UPDATE BUTTON --------------------
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.hinduBase,
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 10),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(20),
               ),
-              disabledBackgroundColor: Colors.grey.shade300,
             ),
-            onPressed: (isUpdating || isUploadingImage) ? null : _handleUpdate,
+            onPressed: (isUpdating || isUploadingImage)
+                ? null
+                : _handleUpdate,
             child: isUpdating
                 ? const SizedBox(
               height: 20,
@@ -819,27 +658,24 @@ class _EditDarshanPageState extends State<EditDarshanPage> {
         ),
       ),
 
-      // -------------------- BODY --------------------
       body: SingleChildScrollView(
         child: Form(
           key: formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // INFO BOX
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 color: const Color(0xFFFFF1E9),
                 child: const Text(
                   "Mobile Image\nSupported formats: JPG, PNG, GIF · Max size: 2 MB · 1 file only",
-                  style: TextStyle(fontSize: 13, color: Colors.black87),
+                  style: TextStyle(fontSize: 13),
                 ),
               ),
 
               const SizedBox(height: 16),
 
-              // IMAGE UPLOAD
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: GestureDetector(
@@ -850,7 +686,6 @@ class _EditDarshanPageState extends State<EditDarshanPage> {
 
               const SizedBox(height: 24),
 
-              // FORM FIELDS
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
@@ -858,20 +693,9 @@ class _EditDarshanPageState extends State<EditDarshanPage> {
                   children: [
                     _label("Title *"),
                     _textbox(titleCtrl, maxLines: 2),
-
                     const SizedBox(height: 20),
-
                     _label("Live Darshan Link *"),
                     _textbox(linkCtrl),
-
-                    const SizedBox(height: 8),
-                    Text(
-                      "Current Link: ${linkCtrl.text}",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -884,7 +708,6 @@ class _EditDarshanPageState extends State<EditDarshanPage> {
     );
   }
 
-  // -------------------- IMAGE UPLOAD BOX --------------------
   Widget _buildImageBox() {
     return DottedBorder(
       color: const Color(0xFFFF7722),
@@ -896,49 +719,16 @@ class _EditDarshanPageState extends State<EditDarshanPage> {
         height: 220,
         width: double.infinity,
         child: isUploadingImage
-            ? const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircularProgressIndicator(color: Color(0xFFFF7722)),
-              SizedBox(height: 12),
-              Text(
-                "Uploading image...",
-                style: TextStyle(color: Colors.grey),
-              ),
-            ],
-          ),
-        )
+            ? const Center(child: CircularProgressIndicator())
             : mobile_image == null
-            ? const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.cloud_upload,
-              size: 50,
-              color: Color(0xFFFF7722),
-            ),
-            SizedBox(height: 12),
-            Text(
-              "Tap to upload image",
-              style: TextStyle(
-                color: Color(0xFFFF7722),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+            ? const Center(
+          child: Icon(Icons.cloud_upload,
+              size: 50, color: Color(0xFFFF7722)),
         )
             : ClipRRect(
           borderRadius: BorderRadius.circular(10),
-          child: mobile_image!.startsWith('http')
-              ? Image.network(
+          child: Image.network(
             ImageConverter.optimizeCloudinaryUrl(mobile_image!),
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-          )
-              : Image.file(
-            File(mobile_image!),
             fit: BoxFit.cover,
             width: double.infinity,
             height: double.infinity,
@@ -948,12 +738,12 @@ class _EditDarshanPageState extends State<EditDarshanPage> {
     );
   }
 
-  // -------------------- HELPER WIDGETS --------------------
   Widget _label(String text) => Padding(
     padding: const EdgeInsets.only(bottom: 8),
     child: Text(
       text,
-      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+      style: const TextStyle(
+          fontSize: 15, fontWeight: FontWeight.w600),
     ),
   );
 
@@ -961,24 +751,13 @@ class _EditDarshanPageState extends State<EditDarshanPage> {
     return TextFormField(
       controller: c,
       maxLines: maxLines,
-      validator: (v) => v == null || v.trim().isEmpty
-          ? "This field is required"
-          : null,
-      style: const TextStyle(fontSize: 14),
+      validator: (v) =>
+      v == null || v.trim().isEmpty ? "This field is required" : null,
       decoration: InputDecoration(
         filled: true,
         fillColor: Colors.grey.shade50,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: AppColors.hinduBase, width: 2),
         ),
         contentPadding: const EdgeInsets.all(16),
       ),

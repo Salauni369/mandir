@@ -124,8 +124,8 @@ class PastDarshanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 🔥 FIXED: Changed from darshan.image to darshan.mobile_image
-    final imageUrl = (darshan.mobile_image != null && darshan.mobile_image!.isNotEmpty)
-        ? ImageConverter.optimizeCloudinaryUrl(darshan.mobile_image!)
+    final imageUrl = (darshan.mobileImage != null && darshan.mobileImage!.isNotEmpty)
+        ? ImageConverter.optimizeCloudinaryUrl(darshan.mobileImage!)
         : "https://picsum.photos/200";
 
     return InkWell(

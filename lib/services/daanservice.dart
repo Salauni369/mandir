@@ -8,9 +8,6 @@ import '../utils/api_header.dart';
 import '../utils/apiconstants.dart';
 
 class DaanService {
-  // =========================
-  // GET ALL DONATIONS
-  // =========================
   static Future<List<DaanModel>> getAll() async {
     final uri = Uri.parse(ApiConstants.getdonation);
 
@@ -42,9 +39,9 @@ class DaanService {
     }
   }
 
-  // =========================
+
   // ADD DONATION (JSON ONLY)
-  // =========================
+
   static Future<DaanModel> add(DaanModel daan) async {
     final uri = Uri.parse(ApiConstants.postdonation);
 

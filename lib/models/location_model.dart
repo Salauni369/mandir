@@ -1,11 +1,11 @@
+// 🔥 ADD THIS TO YOUR LocationModel CLASS
+
 class LocationModel {
-  String address;
-  String area;
-  String pincode;
-  String city;
-  String state;
-  double? latitude;
-  double? longitude;
+  final String address;
+  final String area;
+  final String pincode;
+  final String city;
+  final String state;
 
   LocationModel({
     required this.address,
@@ -13,27 +13,22 @@ class LocationModel {
     required this.pincode,
     required this.city,
     required this.state,
-    this.latitude,
-    this.longitude,
   });
 
-  factory LocationModel.fromJson(Map<String, dynamic> j) => LocationModel(
-    address: j['address'] ?? '',
-    area: j['area'] ?? '',
-    pincode: j['pincode'] ?? '',
-    city: j['city'] ?? '',
-    state: j['state']?? '',
-    latitude: j['latitude'] != null ? (j['latitude'] as num).toDouble() : null,
-    longitude: j['longitude'] != null ? (j['longitude'] as num).toDouble() : null,
-  );
-
-  Map<String, dynamic> toJson() => {
-    'address': address,
-    'area': area,
-    'pincode': pincode,
-    'city': city,
-    'state':state,
-    'latitude': latitude,
-    'longitude': longitude,
-  };
+  // 🔥 ADD THIS COPYWITH METHOD
+  LocationModel copyWith({
+    String? address,
+    String? area,
+    String? pincode,
+    String? city,
+    String? state,
+  }) {
+    return LocationModel(
+      address: address ?? this.address,
+      area: area ?? this.area,
+      pincode: pincode ?? this.pincode,
+      city: city ?? this.city,
+      state: state ?? this.state,
+    );
+  }
 }

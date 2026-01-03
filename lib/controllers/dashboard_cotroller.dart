@@ -1,6 +1,3 @@
-
-
-
 import 'package:get/get.dart';
 import '../models/dashboard_model.dart';
 import '../services/dashboard_services.dart';
@@ -9,6 +6,7 @@ import 'darshan_controller.dart';
 class TempleHomeController extends GetxController {
   var loading = false.obs;
   var homeData = Rxn<TempleHomeModel>();
+
 
   @override
   void onInit() {
@@ -32,5 +30,7 @@ class TempleHomeController extends GetxController {
       loading(false);
     }
   }
+
+
 
 }

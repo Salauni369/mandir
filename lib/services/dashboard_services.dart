@@ -16,6 +16,14 @@ class DashboardService {
     return ApiHelper.handleResponse(res);
   }
 
+  static Future<Map<String, dynamic>> liveDarashan() async {
+    final res = await http.get(
+      Uri.parse(ApiConstants.liveDarshan),
+      headers: ApiHeaders.headers(),
+    );
+    return ApiHelper.handleResponse(res);
+  }
+
   static Future<Map<String, dynamic>> updateOverview(
       Map<String, dynamic> body) async {
 

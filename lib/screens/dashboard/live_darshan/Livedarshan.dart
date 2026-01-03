@@ -64,7 +64,7 @@ class DarshanMainPage extends StatelessWidget {
 
 
       body: Obx(() {
-        if (controller.isLoading.value) {
+        if (controller.isPageLoading.value) {
           return Center(
             child: CircularProgressIndicator(color: AppColors.hinduBase),
           );
